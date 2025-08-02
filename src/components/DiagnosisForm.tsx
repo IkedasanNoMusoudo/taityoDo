@@ -22,8 +22,9 @@ const DiagnosisForm = () => {
   const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
   const medicationLevels: MedicationLevel[] = ['多く飲んだ', '飲んだ', '少なめに飲んだ', '飲んでない']
   const healthConditions: HealthCondition[] = ['○', '×', '△']
-
+  // 診断後の励ましコメントのためのuseState
   const [isModalOpen, setIsModalOpen] = useState(false)
+
 
   //フォームリセットのためのデータ
   const initialFormData: DiagnosisData = {
@@ -67,7 +68,7 @@ const DiagnosisForm = () => {
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          診断後ケアフォーム
+          中間チェックフォーム
         </h1>
         
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -100,24 +101,6 @@ const DiagnosisForm = () => {
               </div>
           </div>
           
-          {/* 屯用チェック */}
-          <div className="mb-6">
-            <label className="font-semibold text-gray-700">屯用（とんよう）を使用しましたか？</label>
-            <div className="mt-2">
-              <label className="inline-flex items-center cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={formData.tonyoUsed}
-                  onChange={(e) =>
-                    setFormData({ ...formData, tonyoUsed: e.target.checked })
-                  }
-                  className="form-checkbox h-5 w-5 text-blue-600"
-                />
-                <span className="ml-2 text-gray-800">使用した</span>
-              </label>
-            </div>
-          </div>
-
           {/* 時間帯別投与記録（屯用使用時のみ有効化）*/}
           <div>
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
@@ -138,6 +121,7 @@ const DiagnosisForm = () => {
             {timeSlots.map((slot) => (
               <fieldset key={slot} className="mb-6" disabled={formData.skipMedication}>
                 <legend className="font-semibold text-gray-700 mb-2">{slot}</legend>
+                {/* 屯用されていない場合は見た目だけ無効 */}
                 <div className="grid grid-cols-2 gap-4 ${!formData.tonyoUsed ? 'opacity-50 pointer-events-none' : ''}`}">
                   {medicationLevels.map((level) => (
                     <label
@@ -201,11 +185,81 @@ const DiagnosisForm = () => {
             </div>
           </div>
 
+          {/* 屯用チェック */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">3. 屯用（とんよう）を使用しましたか？</h2>
+            <div className="mt-2">
+              <label className="inline-flex items-center cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={formData.tonyoUsed}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tonyoUsed: e.target.checked })
+                  }
+                  className="form-checkbox h-5 w-5 text-blue-600"
+                />
+                <span className="ml-2 text-gray-800">使用した</span>
+              </label>
+            </div>
+          </div>
+
+          {/* 時間帯別投与記録（屯用使用時のみ表示）*/}
+          {formData.tonyoUsed && (
+            <div>
+              <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                3.1. 時間帯別の屯用薬の投与量を記録してください
+              </h2>
+              <div className='grid grid-rows-5 gap-1 mb-3'>
+                <p className="text-gray-500">各項目でポイント換算し、多い項目をグラフで示します。</p>
+                <p className="text-gray-500">多く飲んだ → 3ポイント</p>
+                <p className="text-gray-500">飲んだ → 2ポイント</p>
+                <p className="text-gray-500">少なめに飲んだ → 1ポイント</p>
+                <p className="text-gray-500">飲んでいない → 0ポイント</p>
+              </div>
+              {timeSlots.map((slot) => (
+                <fieldset key={slot} className="mb-6">
+                  <legend className="font-semibold text-gray-700 mb-2">{slot}</legend>
+                  <div className="grid grid-cols-2 gap-4">
+                    {medicationLevels.map((level) => (
+                      <label
+                        key={level}
+                        className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                          formData.medicationLevel[slot] === level
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`${slot}`}
+                          value={level}
+                          checked={formData.medicationLevel[slot] === level}
+                          onChange={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              medicationLevel: {
+                                ...prev.medicationLevel,
+                                [slot]: level
+                              }
+                            }))
+                          }
+                          className="sr-only"
+                        />
+                        <span className="block text-center">{level}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </div>
+          )}
+
+
 
           {/* 相談・対応策 */}
           <div>
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
-              3. 次回の診断までにあったことを記録してください
+              4. 次回の診断までにあったことを記録してください
             </h2>
             <textarea
               value={formData.consultation}
