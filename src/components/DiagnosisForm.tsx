@@ -123,6 +123,13 @@ const DiagnosisForm = () => {
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
               1. 時間帯別の薬の投与量を記録してください
             </h2>
+            <div className='grid grid-rows-5 gap-1 mb-3'>
+              <p className="text-gray-500">各項目でポイント換算し、多い項目をグラフで示します。</p>
+              <p className="text-gray-500"> 多く飲んだ → 3ポイント</p>
+              <p className="text-gray-500">飲んだ → 2ポイント</p>
+              <p className="text-gray-500">少なめに飲んだ → １ポイント</p>
+              <p className="text-gray-500">飲んでいない → ０ポイント</p>
+            </div>
             {formData.skipMedication ? (
               <p className="text-gray-500 italic mb-4">
                 ※「薬を使わない」が選択されているため、入力できません。
@@ -214,8 +221,8 @@ const DiagnosisForm = () => {
             <button
               type="submit"
               disabled={
-                !formData.healthCondition &&
-                Object.values(formData.medicationLevel).some((v) => v === null)
+                !formData.healthCondition ||
+                (!formData.skipMedication && Object.values(formData.medicationLevel).some((v) => v === null))
               }
               className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >

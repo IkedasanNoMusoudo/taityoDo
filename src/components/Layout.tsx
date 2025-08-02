@@ -16,10 +16,13 @@ const Layout = ({ children }: LayoutProps) => {
             </Link>
             <nav className="space-x-4">
               <Link to="/" className="hover:text-blue-200 transition-colors">
-                診断フォーム
+                診断後診断フォーム
               </Link>
               <Link to="/report" className="hover:text-blue-200 transition-colors">
                 レポート
+              </Link>
+              <Link to="/register" className="hover:text-blue-200 transition-colors">
+                診断後診断するにあたっての事前登録
               </Link>
             </nav>
           </div>

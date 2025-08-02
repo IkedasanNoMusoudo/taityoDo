@@ -194,6 +194,22 @@ const ReportView = () => {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            
+            {/** 後で削除してもよい */}
+            <div className="pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('本当に保存されたレポートを削除しますか？')) {
+                    localStorage.removeItem('diagnosisData')
+                    alert('保存されたレポートデータを削除しました')
+                  }
+                }}
+                className="w-full bg-red-500 text-white py-3 px-6 rounded-lg font-semibold text-lg hover:bg-red-600 transition-colors"
+              >
+                レポートデータをリセット
+              </button>
+            </div>
 
           </div>
         )}
