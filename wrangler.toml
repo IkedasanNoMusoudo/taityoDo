@@ -7,3 +7,6 @@ compatibility_date = "2023-12-01"
 binding = "DB"
 database_name = "after-care-db"
 database_id = "after-care-db"
+
+[triggers]
+crons = ["* * * * *"]

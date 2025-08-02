@@ -17,6 +17,7 @@ interface UserInfo {
 	name: string;
 	email: string;
 	password: string;
+	notification_times: string; // カンマ区切りの時刻文字列 (例: "08:00,12:00,20:00")
 }
 
 // TODO: LINE APIのURLを実装時に使用
@@ -24,6 +25,65 @@ interface UserInfo {
 // const PUSH_URL = 'https://api.line.me/v2/bot/message/push'
 
 const IS_MOCK = true
+
+// 時刻テキストのバリデーション関数
+const validateNotificationTimes = (timesText: string): { isValid: boolean; error?: string; times?: string[] } => {
+	try {
+		// 空文字チェック
+		if (!timesText || timesText.trim() === '') {
+			return { isValid: false, error: '時刻が入力されていません' };
+		}
+
+		// 「なし」の場合は有効
+		if (timesText.trim() === 'なし') {
+			return { isValid: true, times: [] };
+		}
+
+		// カンマで分割
+		const times = timesText.split(',').map(t => t.trim()).filter(t => t !== '');
+		
+		// 最低1つの時刻が必要
+		if (times.length === 0) {
+			return { isValid: false, error: '少なくとも1つの時刻を入力してください' };
+		}
+
+		// 各時刻の形式チェックと整形
+		const formattedTimes: string[] = [];
+		for (const time of times) {
+			// hh:mm形式の正規表現（より柔軟に）
+			const timeRegex = /^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
+			if (!timeRegex.test(time)) {
+				return { isValid: false, error: `時刻の形式が正しくありません: ${time} (hh:mm形式で入力してください)` };
+			}
+
+			// 時刻の範囲チェック（00:00-23:59）
+			const [hours, minutes] = time.split(':').map(Number);
+			if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+				return { isValid: false, error: `時刻の範囲が正しくありません: ${time} (00:00-23:59の範囲で入力してください)` };
+			}
+
+			// HH:MM形式に整形（2桁ゼロ埋め）
+			const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+			formattedTimes.push(formattedTime);
+		}
+
+		// 重複チェック
+		const uniqueTimes = [...new Set(formattedTimes)];
+		if (uniqueTimes.length !== formattedTimes.length) {
+			return { isValid: false, error: '重複した時刻が含まれています' };
+		}
+
+		// 時刻の順序チェック（昇順にソート）
+		const sortedTimes = [...formattedTimes].sort();
+		if (JSON.stringify(sortedTimes) !== JSON.stringify(formattedTimes)) {
+			return { isValid: false, error: '時刻は昇順（早い時刻から）で入力してください' };
+		}
+
+		return { isValid: true, times: formattedTimes };
+	} catch (error) {
+		return { isValid: false, error: '時刻の検証中にエラーが発生しました' };
+	}
+};
 
 if (typeof globalThis.fetch === 'function' && IS_MOCK) {
   console.log('ローカル開発環境のため、fetchをモック化します。');
@@ -154,6 +214,59 @@ const register_user = async (db: any, userInfo: UserInfo): Promise<boolean> => {
 			return false;
 		}
 		
+		// 3. record_reminder_rulesテーブルに通知時刻を挿入
+		if (userInfo.notification_times.trim() === 'なし') {
+			// 「なし」の場合は空文字で1つのレコードを作成
+			const reminderResult = await db.prepare(`
+				INSERT INTO record_reminder_rules (user_id, alert_time, enabled)
+				VALUES (?, ?, 0)
+			`).bind(
+				userResult.meta.last_row_id,
+				''  // 空文字
+			).run();
+			
+			if (!reminderResult.success) {
+				console.error('通知時刻の登録に失敗しました（なしの場合）');
+				// ユーザーとアカウントを削除を試みる
+				try {
+					await db.prepare('DELETE FROM users WHERE id = ?').bind(userResult.meta.last_row_id).run();
+					await db.prepare('DELETE FROM accounts WHERE id = ?').bind(accountResult.meta.last_row_id).run();
+				} catch (deleteError) {
+					console.error('削除エラー:', deleteError);
+				}
+				return false;
+			}
+		} else {
+			// 時刻が指定されている場合（バリデーション済みの整形された時刻を使用）
+			const timeValidation = validateNotificationTimes(userInfo.notification_times);
+			if (!timeValidation.isValid || !timeValidation.times) {
+				console.error('時刻のバリデーションに失敗しました');
+				return false;
+			}
+			
+			for (const time of timeValidation.times) {
+				const reminderResult = await db.prepare(`
+					INSERT INTO record_reminder_rules (user_id, alert_time, enabled)
+					VALUES (?, ?, 1)
+				`).bind(
+					userResult.meta.last_row_id,
+					time
+				).run();
+				
+				if (!reminderResult.success) {
+					console.error(`通知時刻の登録に失敗しました: ${time}`);
+					// ユーザーとアカウントを削除を試みる
+					try {
+						await db.prepare('DELETE FROM users WHERE id = ?').bind(userResult.meta.last_row_id).run();
+						await db.prepare('DELETE FROM accounts WHERE id = ?').bind(accountResult.meta.last_row_id).run();
+					} catch (deleteError) {
+						console.error('削除エラー:', deleteError);
+					}
+					return false;
+				}
+			}
+		}
+		
 		return true;
 	} catch (error) {
 		console.error('ユーザー登録エラー:', error);
@@ -200,8 +313,29 @@ const textEventHandler = async (
 	} else {
 		// 未登録ユーザーの場合：登録処理
 		const lines = text.split('\n');
-		if (lines.length >= 3) {
-			const [name, email, password] = lines;
+		if (lines.length >= 4) {
+			const [name, email, password, notificationTimes] = lines;
+			
+			// 時刻のバリデーション
+			const timeValidation = validateNotificationTimes(notificationTimes);
+			if (!timeValidation.isValid) {
+				const response: TextMessage = {
+					type: "text",
+					text: `時刻の入力に問題があります：${timeValidation.error}\n\n正しい形式：\n名前（漢字）\nメールアドレス\nパスワード\n通知時刻（hh:mm形式、カンマ区切り、例：08:00,12:00,20:00 または なし）`,
+				};
+				await fetch("https://api.example.com/v2/bot/message/reply", {
+					body: JSON.stringify({
+						replyToken: replyToken,
+						messages: [response],
+					}),
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${accessToken}`,
+						"Content-Type": "application/json",
+					},
+				});
+				return;
+			}
 			
 			// 簡単なバリデーション
 			if (name && email && password && email.includes('@')) {
@@ -209,7 +343,8 @@ const textEventHandler = async (
 					line_user_id: userid,
 					name: name.trim(),
 					email: email.trim(),
-					password: password.trim()
+					password: password.trim(),
+					notification_times: notificationTimes.trim()
 				};
 				console.log(userInfo);
 				
@@ -250,7 +385,7 @@ const textEventHandler = async (
 			} else {
 				const response: TextMessage = {
 					type: "text",
-					text: "正しい形式で入力してください：\n名前（漢字）\nメールアドレス\nパスワード",
+					text: "正しい形式で入力してください：\n名前（漢字）\nメールアドレス\nパスワード\n通知時刻（hh:mm形式、カンマ区切り、例：08:00,12:00,20:00 または なし）",
 				};
 				await fetch("https://api.example.com/v2/bot/message/reply", {
 					body: JSON.stringify({
@@ -267,7 +402,7 @@ const textEventHandler = async (
 		} else {
 			const response: TextMessage = {
 				type: "text",
-				text: "以下の形式で入力してください：\n名前（漢字）\nメールアドレス\nパスワード",
+				text: "以下の形式で入力してください：\n名前（漢字）\nメールアドレス\nパスワード\n通知時刻（hh:mm形式、カンマ区切り、例：08:00,12:00,20:00 または なし）",
 			};
 			await fetch("https://api.example.com/v2/bot/message/reply", {
 				body: JSON.stringify({
@@ -297,7 +432,7 @@ const followEventHandler = async (
 
 	console.log('follow ' + userid + timestamp.toISOString());
 
-	const text = '友だち追加ありがとうございます。連携のため、以下の形式に従って情報を送信してください。\n名前（漢字）\nメールアドレス\nパスワード'
+	const text = '友だち追加ありがとうございます。連携のため、以下の形式に従って情報を送信してください。\n名前（漢字）\nメールアドレス\nパスワード\n通知時刻（hh:mm形式、カンマ区切り、例：08:00,12:00,20:00 または なし）'
 	const response: TextMessage = {
 		type: "text",
 		text: text,
@@ -322,44 +457,52 @@ const scheduled = async (
     _ctx: any,
 ) => {
 	const accessToken: string = env.LINE_CHANNEL_ACCESS_TOKEN;
-	// TODO: DBを使用してユーザー情報を取得
-	// const db = env.DB;
+	const db = env.DB;
 	const utc = new Date(controller.scheduledTime);
-	console.log("cron " + utc.toISOString());
+	
+	// 現在時刻をHH:MM形式に整形
+	const currentTime = `${utc.getHours().toString().padStart(2, '0')}:${utc.getMinutes().toString().padStart(2, '0')}`;
 	
 	try {
-		// TODO: 登録済みユーザー全員取得のSQL文を実装
-		// SELECT line_user_id, name FROM users
-		const users = { results: [] };
+		// 全ユーザーの名前、line_user_id、通知時刻をDBから取得（通知設定なしも含む）
+		const usersResult = await db.prepare(`
+			SELECT u.name, a.line_id as line_user_id, rrr.alert_time, rrr.enabled
+			FROM users u
+			JOIN accounts a ON u.account_id = a.id
+			LEFT JOIN record_reminder_rules rrr ON u.id = rrr.user_id
+		`).all();
 		
-		if (users.results && users.results.length > 0) {
-			// 各ユーザーにメッセージを送信
-			await Promise.all(
-				users.results.map(async (user: { line_user_id: string; name: string }) => {
-					try {
-						await fetch("https://api.example.com/v2/bot/message/push", {
-							body: JSON.stringify({
-								to: user.line_user_id,
-								messages: [{
-									"type": "text",
-									"text": `${user.name}さん、こんばんは。今日の体調記録をお願いします。以下のURLから入力してください：\nhttps://example.com/diagnosis`
-								}],
-							}),
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${accessToken}`,
-								"Content-Type": "application/json",
-							},
-						});
-						console.log(`体調確認メッセージを送信: ${user.name} (${user.line_user_id})`);
-					} catch (error) {
-						console.error(`メッセージ送信エラー (${user.line_user_id}):`, error);
-					}
-				})
-			);
-			console.log(`${users.results.length}人のユーザーに体調確認メッセージを送信しました`);
-		} else {
-			console.log('登録済みユーザーがいません');
+		if (usersResult.results && usersResult.results.length > 0) {
+			// 現在時刻に通知を希望しているユーザーをフィルタリング
+			const usersToNotify = usersResult.results.filter((user: any) => {
+				return user.alert_time === currentTime && user.enabled === 1;
+			});
+			
+			if (usersToNotify.length > 0) {
+				// 該当するユーザーにメッセージを送信
+				await Promise.all(
+					usersToNotify.map(async (user: any) => {
+						try {
+							await fetch("https://api.example.com/v2/bot/message/push", {
+								body: JSON.stringify({
+									to: user.line_user_id,
+									messages: [{
+										"type": "text",
+										"text": `${user.name}さん、こんばんは。今日の体調記録をお願いします。以下のURLから入力してください：\nhttps://example.com/diagnosis`
+									}],
+								}),
+								method: "POST",
+								headers: {
+									Authorization: `Bearer ${accessToken}`,
+									"Content-Type": "application/json",
+								},
+							});
+						} catch (error) {
+							console.error(`メッセージ送信エラー (${user.line_user_id}):`, error);
+						}
+					})
+				);
+			}
 		}
 	} catch (error) {
 		console.error('スケジュールタスクエラー:', error);
