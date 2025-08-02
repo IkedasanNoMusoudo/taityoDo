@@ -16,6 +16,7 @@ const DiagnosisForm = () => {
     consultation: '',
     timestamp: new Date().toISOString(),
     tonyoUsed: false, // 初期値
+    skipMedication: false
   })
 
   const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
@@ -36,7 +37,8 @@ const DiagnosisForm = () => {
     healthCondition: null,
     consultation: '',
     timestamp: '',
-    tonyoUsed: false
+    tonyoUsed: false,
+    skipMedication: false
   }
 
 
@@ -69,15 +71,67 @@ const DiagnosisForm = () => {
         </h1>
         
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* 時間帯ごとの薬の投与量 */}
+          {/**　薬をそもそも使用しなかった時に薬の記録は取らないための機能 */}
+          <div className="mt-4">
+            <label className="font-semibold text-gray-700">薬を使っていませんか？</label>
+              <div className='mt-2'>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.skipMedication}
+                    onChange={(e) => {
+                      const checked = e.target.checked
+                      const resetMedicationLevel = Object.fromEntries(
+                        timeSlots.map((slot) => [slot, null])
+                      ) as Record<TimeSlot, MedicationLevel | null>
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        skipMedication: checked,
+                        tonyoUsed: checked ? false : prev.tonyoUsed,
+                        medicationLevel: checked ? resetMedicationLevel : prev.medicationLevel
+                      }))
+                    }}
+                    className="form-checkbox h-5 w-5 text-blue-600"
+                  />
+                  <span className="ml-2 text-gray-800">薬を使わなかった
+                  </span>
+                </label>
+              </div>
+          </div>
+          
+          {/* 屯用チェック */}
+          <div className="mb-6">
+            <label className="font-semibold text-gray-700">屯用（とんよう）を使用しましたか？</label>
+            <div className="mt-2">
+              <label className="inline-flex items-center cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={formData.tonyoUsed}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tonyoUsed: e.target.checked })
+                  }
+                  className="form-checkbox h-5 w-5 text-blue-600"
+                />
+                <span className="ml-2 text-gray-800">使用した</span>
+              </label>
+            </div>
+          </div>
+
+          {/* 時間帯別投与記録（屯用使用時のみ有効化）*/}
           <div>
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
               1. 時間帯別の薬の投与量を記録してください
             </h2>
+            {formData.skipMedication ? (
+              <p className="text-gray-500 italic mb-4">
+                ※「薬を使わない」が選択されているため、入力できません。
+              </p>
+            ) : null}
             {timeSlots.map((slot) => (
-              <div key={slot} className="mb-6">
-                <h3 className="font-semibold text-gray-700 mb-2">{slot}</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <fieldset key={slot} className="mb-6" disabled={formData.skipMedication}>
+                <legend className="font-semibold text-gray-700 mb-2">{slot}</legend>
+                <div className="grid grid-cols-2 gap-4 ${!formData.tonyoUsed ? 'opacity-50 pointer-events-none' : ''}`}">
                   {medicationLevels.map((level) => (
                     <label
                       key={level}
@@ -107,7 +161,7 @@ const DiagnosisForm = () => {
                     </label>
                   ))}
                 </div>
-              </div>
+              </fieldset>
             ))}
           </div>
 
@@ -140,29 +194,11 @@ const DiagnosisForm = () => {
             </div>
           </div>
 
-          <div className="mb-6">
-            <label className="font-semibold text-gray-700">4. 屯用（とんよう）を使用しましたか？</label>
-            <div className="mt-2">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.tonyoUsed}
-                  onChange={(e) =>
-                    setFormData({ ...formData, tonyoUsed: e.target.checked })
-                  }
-                  className="form-checkbox h-5 w-5 text-blue-600"
-                />
-                <span className="ml-2 text-gray-800">使用した</span>
-              </label>
-            </div>
-          </div>
-
-
 
           {/* 相談・対応策 */}
           <div>
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
-              4. 次回の診断までにあったことを記録してください
+              3. 次回の診断までにあったことを記録してください
             </h2>
             <textarea
               value={formData.consultation}
@@ -177,8 +213,10 @@ const DiagnosisForm = () => {
           <div className="pt-4">
             <button
               type="submit"
-              disabled={!formData.healthCondition ||
-                Object.values(formData.medicationLevel).some((v) => v === null)}
+              disabled={
+                !formData.healthCondition &&
+                Object.values(formData.medicationLevel).some((v) => v === null)
+              }
               className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               レポートを出す

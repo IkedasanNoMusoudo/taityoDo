@@ -19,6 +19,7 @@ export interface DiagnosisData {
   consultation: string
   timestamp: string
   tonyoUsed: boolean
+  skipMedication: boolean 
 }
 
 export interface ReportData extends DiagnosisData {
