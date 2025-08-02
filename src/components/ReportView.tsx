@@ -25,8 +25,6 @@ const ReportView = () => {
     }
   }
 
-  
-
 
   //　レポートの出力日付
   const formatDate = (timestamp: string) => {
@@ -54,7 +52,7 @@ const ReportView = () => {
     const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
     return timeSlots.map((slot) => ({
       name: slot,
-      value: data.reduce(
+      value: data.filter(report => report.tonyoUsed).reduce(
         (sum, report) => {
           const level = report.medicationLevel?.[slot] ?? '飲んでない'
           return sum + medicationLevel(level)
@@ -160,7 +158,6 @@ const ReportView = () => {
                     {selectedReport.tonyoUsed ? '使用した' : '使用していない'}
                   </p>
                 </div>
-
               </div>
 
               {/* 相談・対応策 */}
@@ -171,6 +168,18 @@ const ReportView = () => {
                 </p>
               </div>
             </div>
+            
+            {/** 屯用薬を使用した場合のレポート表示 */}
+            {selectedReport.tonyoUsed && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-700 mb-2">薬の投与量（屯用薬）</h3>
+                {Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
+                  <p className="text-gray-800" key={time}>
+                    {time}: {level ?? '未記録'}
+                  </p>
+                ))}
+              </div>
+            )}
 
             {/* AI推奨事項（将来的な実装） */}
             <div className="bg-blue-50 p-4 rounded-lg">
