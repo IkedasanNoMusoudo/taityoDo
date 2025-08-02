@@ -42,7 +42,7 @@ const DiagnosisForm = () => {
 
 
     setIsModalOpen(true)  // モーダルを表示
-    setFormData(initialFormData)  // フォームリセットなど
+    // setFormData(initialFormData)  // フォームリセットなど
     } catch(error) {
       console.error("送信エラー:", error)
     }

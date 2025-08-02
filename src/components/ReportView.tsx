@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ReportData, MedicationLevel, TimeSlot } from '../types'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { generatePDF } from '../utils/pdfGenerator'
 
 const ReportView = () => {
@@ -24,6 +24,9 @@ const ReportView = () => {
       generatePDF(selectedReport)
     }
   }
+
+  
+
 
   //　レポートの出力日付
   const formatDate = (timestamp: string) => {
@@ -54,7 +57,7 @@ const ReportView = () => {
       value: data.reduce(
         (sum, report) => {
           const level = report.medicationLevel?.[slot] ?? '飲んでない'
-          return sum + medicationLevel[level]
+          return sum + medicationLevel(level)
         }, 0)
     }))
   }
@@ -187,7 +190,7 @@ const ReportView = () => {
                   <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="value" fill="#3B82F6" name="スコア合計" />
+                  <Line type="monotone" dataKey="value" stroke="#3B82F6" name="スコア合計" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
