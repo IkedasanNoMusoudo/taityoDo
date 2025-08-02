@@ -82,10 +82,10 @@ export const generatePDF = async (report: ReportData) => {
     
     // フッター
     doc.setFontSize(8)
-    doc.text('daigyoDo - 診断後ケアアプリ', 20, 280)
+    doc.text('daijyoDo - 診断後ケアアプリ', 20, 280)
     
     // PDFをダウンロード
-    doc.save(`daigyoDo_report_${new Date(report.timestamp).toISOString().split('T')[0]}.pdf`)
+    doc.save(`daijyoDo_report_${new Date(report.timestamp).toISOString().split('T')[0]}.pdf`)
   } catch (error) {
     console.error('PDF生成エラー:', error)
   }
