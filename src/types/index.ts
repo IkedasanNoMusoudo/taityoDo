@@ -2,11 +2,7 @@
 export type TimeSlot = '起きた時' | '朝' | '昼' | '夜' | '寝る前'
 
 // 投薬レベルの型
-export type MedicationLevel =
-  | '多く飲んだ'
-  | '飲んだ'
-  | '少なめに飲んだ'
-  | '飲んでない'
+export type MedicationLevel = | '多く飲んだ'  | '飲んだ'  | '少なめに飲んだ'  | '飲んでない'
 
 export const medicationLevel: Record<MedicationLevel, number> = {
   '多く飲んだ': 3,

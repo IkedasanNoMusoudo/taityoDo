@@ -12,7 +12,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="text-2xl font-bold">
-              daigyoDo
+              daijyoDo
             </Link>
             <nav className="space-x-4">
               <Link to="/" className="hover:text-blue-200 transition-colors">

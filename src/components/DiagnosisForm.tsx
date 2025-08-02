@@ -24,28 +24,41 @@ const DiagnosisForm = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  //フォームリセットのためのデータ
+  const initialFormData: DiagnosisData = {
+    medicationLevel: {
+      '起きた時': null,
+      '朝': null,
+      '昼': null,
+      '夜': null,
+      '寝る前': null
+    },
+    healthCondition: null,
+    consultation: '',
+    timestamp: '',
+    tonyoUsed: false
+  }
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
     try {
-    // ローカルストレージに保存
-    const existingData = localStorage.getItem('diagnosisData')
-    const dataArray = existingData ? JSON.parse(existingData) : []
-    const newData = {
-      ...formData,
-      id: Date.now().toString()
-    }
-    dataArray.push(newData)
-    localStorage.setItem('diagnosisData', JSON.stringify(dataArray))
-    // レポートページに遷移
-    navigate('/report')
+      // ローカルストレージに保存
+      const existingData = localStorage.getItem('diagnosisData')
+      const dataArray = existingData ? JSON.parse(existingData) : []
+      const newData = {
+        ...formData,
+        id: Date.now().toString()
+      }
+      dataArray.push(newData)
+      localStorage.setItem('diagnosisData', JSON.stringify(dataArray))
 
-
-    setIsModalOpen(true)  // モーダルを表示
-    // setFormData(initialFormData)  // フォームリセットなど
-    } catch(error) {
-      console.error("送信エラー:", error)
-    }
+      setIsModalOpen(true)  // モーダルを表示
+      setFormData(initialFormData)  // フォームリセットなど
+      } catch(error) {
+        console.error("送信エラー:", error)
+      }
   }
 
   return (
@@ -179,7 +192,10 @@ const DiagnosisForm = () => {
                 <h2 className="text-2xl font-bold text-green-700 mb-4">お疲れさまでした！</h2>
                 <p className="text-gray-700 mb-6">今日もよく記録できました 😊</p>
                 <button
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false)
+                    navigate('/report') // モーダル閉じた後にreportに遷移
+                  }}
                   className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
                 >
                   閉じる
