@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { ReportData } from '../types'
+import { ReportData, MedicationLevel, TimeSlot } from '../types'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { generatePDF } from '../utils/pdfGenerator'
 
 const ReportView = () => {
@@ -16,13 +17,15 @@ const ReportView = () => {
       }
     }
   }, [])
-
+ 
+  // PDF出力
   const handleGeneratePDF = () => {
     if (selectedReport) {
       generatePDF(selectedReport)
     }
   }
 
+  //　レポートの出力日付
   const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('ja-JP', {
       year: 'numeric',
@@ -33,6 +36,30 @@ const ReportView = () => {
     })
   }
 
+  //薬の投与量のグラフ
+  const medicationLevel = (level: MedicationLevel | null) => {
+    switch (level) {
+      case '多く飲んだ': return 3
+      case '飲んだ': return 2
+      case '少なめに飲んだ': return 1
+      case '飲んでない': return 0
+      default: return 0
+    }
+  }
+
+  const generateChartData = (data: ReportData[]) => {
+    const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
+    return timeSlots.map((slot) => ({
+      name: slot,
+      value: data.reduce(
+        (sum, report) => {
+          const level = report.medicationLevel?.[slot] ?? '飲んでない'
+          return sum + medicationLevel[level]
+        }, 0)
+    }))
+  }
+
+  // レポートがなかった時の表示
   if (reports.length === 0) {
     return (
       <div className="max-w-2xl mx-auto">
@@ -49,10 +76,10 @@ const ReportView = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          診断レポート
+          診断結果
         </h1>
 
         {/* レポート選択 */}
@@ -75,7 +102,12 @@ const ReportView = () => {
                   {formatDate(report.timestamp)}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
-                  薬: {report.medicationLevel} | 体調: {report.healthCondition}
+                   薬:{" "}
+                  {Object.entries(report.medicationLevel)
+                    .map(([time, level]) => `${time}: ${level ?? '未記録'}`)
+                    .join(' / ')}
+                  {" "} | 体調: {report.healthCondition}
+                  {' '}| 屯用: {report.tonyoUsed ? '使用あり' : 'なし'}
                 </div>
               </button>
             ))}
@@ -107,13 +139,25 @@ const ReportView = () => {
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-gray-700 mb-2">薬の投与量</h3>
-                  <p className="text-gray-800">{selectedReport.medicationLevel}</p>
+                  <p className="text-gray-800">{Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
+                    <p key={time}>
+                      {time}: {level ?? '未記録'}
+                    </p>
+                  ))}
+                  </p>
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-gray-700 mb-2">体調</h3>
                   <p className="text-gray-800">{selectedReport.healthCondition}</p>
                 </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-gray-700 mb-2">屯用（とんよう）使用</h3>
+                  <p className="text-gray-800">
+                    {selectedReport.tonyoUsed ? '使用した' : '使用していない'}
+                  </p>
+                </div>
+
               </div>
 
               {/* 相談・対応策 */}
@@ -133,6 +177,21 @@ const ReportView = () => {
                   '前回のあなたは○○をして解決していました（AI機能は将来的に実装予定）'}
               </p>
             </div>
+
+            {/* 投薬量グラフ */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-xl font-semibold text-gray-700 mb-4">投薬傾向（時間帯別）</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={generateChartData(reports)}>
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#3B82F6" name="スコア合計" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
           </div>
         )}
       </div>
