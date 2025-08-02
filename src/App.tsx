@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import DiagnosisForm from './components/DiagnosisForm'
 import ReportView from './components/ReportView'
 import Layout from './components/Layout'
-import LoginPage from './components/loginpage'
+import LoginPage from './components/Loginpage'
 import RegisterPage from './components/Registerpage'
 
 
