@@ -130,7 +130,7 @@ const ReportView = () => {
               <h3 className="font-semibold text-blue-700 mb-2">AI推奨事項</h3>
               <p className="text-blue-800">
                 {selectedReport.aiRecommendation || 
-                  'あなたに似たBさんは○○をして解決していました（AI機能は将来的に実装予定）'}
+                  '前回のあなたは○○をして解決していました（AI機能は将来的に実装予定）'}
               </p>
             </div>
           </div>
