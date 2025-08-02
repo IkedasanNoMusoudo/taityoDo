@@ -12,7 +12,7 @@ const LoginPage = () => {
     setError('')
 
     try {
-      // 例：SupabaseなどのログインAPI呼び出し（仮想処理）
+      // 例：SpliteのログインAPI呼び出し（仮想処理）
       const isAuthenticated = email === 'test@example.com' && password === 'password123'
       if (!isAuthenticated) throw new Error('認証に失敗しました')
 
@@ -61,7 +61,7 @@ const LoginPage = () => {
         
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          className="w-full bg-sky-600 text-white py-2 rounded hover:bg-sky-700 transition"
         >
           ログイン
         </button>
