@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DiagnosisData, MedicationLevel, HealthCondition, TimeSlot } from '../types'
 
@@ -24,9 +24,6 @@ const DiagnosisForm = () => {
   const healthConditions: HealthCondition[] = ['○', '×', '△']
   // 診断後の励ましコメントのためのuseState
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-
-  
 
 
   //フォームリセットのためのデータ
@@ -71,7 +68,7 @@ const DiagnosisForm = () => {
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          診断後ケアフォーム
+          中間チェックフォーム
         </h1>
         
         <form onSubmit={handleSubmit} className="space-y-8">
