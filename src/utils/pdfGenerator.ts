@@ -1,5 +1,4 @@
 import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 import autoTable from 'jspdf-autotable'
 import { toPng } from 'html-to-image'
 import { ReportData } from '../types'
