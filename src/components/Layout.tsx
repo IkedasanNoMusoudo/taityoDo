@@ -16,7 +16,7 @@ const Layout = ({ children }: LayoutProps) => {
             </Link>
             <nav className="space-x-4">
               <Link to="/" className="hover:text-blue-200 transition-colors">
-                診断後診断フォーム
+                診断後ケアフォーム
               </Link>
               <Link to="/report" className="hover:text-blue-200 transition-colors">
                 レポート

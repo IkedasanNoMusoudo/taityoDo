@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DiagnosisData, MedicationLevel, HealthCondition, TimeSlot } from '../types'
 
@@ -22,8 +22,12 @@ const DiagnosisForm = () => {
   const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
   const medicationLevels: MedicationLevel[] = ['多く飲んだ', '飲んだ', '少なめに飲んだ', '飲んでない']
   const healthConditions: HealthCondition[] = ['○', '×', '△']
-
+  // 診断後の励ましコメントのためのuseState
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+
+  
+
 
   //フォームリセットのためのデータ
   const initialFormData: DiagnosisData = {
@@ -138,6 +142,7 @@ const DiagnosisForm = () => {
             {timeSlots.map((slot) => (
               <fieldset key={slot} className="mb-6" disabled={formData.skipMedication}>
                 <legend className="font-semibold text-gray-700 mb-2">{slot}</legend>
+                {/* 屯用されていない場合は見た目だけ無効 */}
                 <div className="grid grid-cols-2 gap-4 ${!formData.tonyoUsed ? 'opacity-50 pointer-events-none' : ''}`}">
                   {medicationLevels.map((level) => (
                     <label
