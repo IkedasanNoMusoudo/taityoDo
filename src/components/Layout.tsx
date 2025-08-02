@@ -15,6 +15,9 @@ const Layout = ({ children }: LayoutProps) => {
               daijyoDo
             </Link>
             <nav className="space-x-4">
+              <Link to="/login" className="hover:text-blue-200 transition-colors">
+                ログインページ
+              </Link>
               <Link to="/" className="hover:text-blue-200 transition-colors">
                 中間チェックフォーム
               </Link>
