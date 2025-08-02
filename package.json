@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "hono": "^4.8.12",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "react": "^19.0.0",
