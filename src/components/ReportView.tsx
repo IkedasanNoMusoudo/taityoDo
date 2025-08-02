@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ReportData, MedicationLevel, TimeSlot } from '../types'
 import { BarChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { generatePDF } from '../utils/pdfGenerator'
@@ -7,6 +7,7 @@ const ReportView = () => {
   const [reports, setReports] = useState<ReportData[]>([])
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null)
 
+  // diagnosisDataというローカルストレージから取得
   useEffect(() => {
     const savedData = localStorage.getItem('diagnosisData')
     if (savedData) {
@@ -17,11 +18,14 @@ const ReportView = () => {
       }
     }
   }, [])
+
+  // 折線グラフ情報の取得のための仕組み
+  const chartRef = useRef<HTMLDivElement>(null)
  
   // PDF出力
   const handleGeneratePDF = () => {
-    if (selectedReport) {
-      generatePDF(selectedReport)
+    if (selectedReport && chartRef.current) {
+      generatePDF(selectedReport, chartRef.current!)
     }
   }
 
@@ -191,7 +195,7 @@ const ReportView = () => {
             </div>
 
             {/* 投薬量グラフ */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6" ref={chartRef}>
               <h3 className="text-xl font-semibold text-gray-700 mb-4">投薬傾向（時間帯別）</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={generateChartData(reports)}>
