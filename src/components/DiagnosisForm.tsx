@@ -33,8 +33,6 @@ const DiagnosisForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
 
-
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -81,7 +79,7 @@ const DiagnosisForm = () => {
                         ...prev,
                         skipMedication: checked,
                         tonyoUsed: checked ? false : prev.tonyoUsed,
-                        medicationLevel: initialMedicationLevel,
+                        medicationLevel: checked ? initialMedicationLevel : prev.medicationLevel,
                       }))
                     }}
                     className="form-checkbox h-5 w-5 text-blue-600"
