@@ -1,0 +1,17 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "after-care"
+main = "src/index.ts"
+compatibility_date = "2023-12-01"
+
+[pages]
+name = "after-care"
+compatibility_date = "2023-12-01"
+pages_build_output_dir = "dist"
+
+[[pages.functions]]
+script = "src/index.ts"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "after-care-db"
+database_id = "your-database-id-here"

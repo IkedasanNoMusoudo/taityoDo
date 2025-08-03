@@ -1,5 +1,5 @@
-// 時間帯の型を追加
-export type TimeSlot = '起きた時' | '朝' | '昼' | '夜' | '寝る前'
+// 時間帯の型を追加 - 動的に対応するためstringに変更
+export type TimeSlot = string
 
 // 投薬レベルの型
 export type MedicationLevel = | '多く飲んだ'  | '飲んだ'  | '少なめに飲んだ'  | '飲んでない'
@@ -11,10 +11,10 @@ export const medicationLevel: Record<MedicationLevel, number> = {
   '飲んでない': 0,
 }
 
-export type HealthCondition = '○' | '×' | '△'
+export type HealthCondition = '〇' | '×' | '△'
 
 export interface DiagnosisData {
-  medicationLevel: Record<TimeSlot, MedicationLevel | null>
+  medicationLevel: Record<string, MedicationLevel | null>
   healthCondition: HealthCondition | null
   consultation: string
   timestamp: string

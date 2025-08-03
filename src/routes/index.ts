@@ -5,6 +5,8 @@ import medications from './medications'
 import medicationInstances from './medication-instances'
 import records from './records'
 import dashboard from './dashboard'
+import diagnosis from './diagnosis'
+import { getTimeslots } from './timeslots'
 
 type Env = {
   DB: any // D1Database type - using any for now to avoid type issues
@@ -19,5 +21,7 @@ routes.route('/medications', medications)
 routes.route('/medication-instances', medicationInstances)
 routes.route('/records', records)
 routes.route('/dashboard', dashboard)
+routes.route('/diagnosis', diagnosis)
+routes.get('/timeslots', getTimeslots)
 
 export default routes

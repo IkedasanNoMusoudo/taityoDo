@@ -1,64 +1,169 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DiagnosisData, MedicationLevel, HealthCondition, TimeSlot } from '../types'
 
 const DiagnosisForm = () => {
   const navigate = useNavigate()
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
+  const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState<DiagnosisData>({
-    medicationLevel: {
-      '起きた時': null,
-      '朝': null,
-      '昼': null,
-      '夜': null,
-      '寝る前': null
-    },
+    medicationLevel: {},
     healthCondition: null,
     consultation: '',
     timestamp: new Date().toISOString(),
     tonyoUsed: false, // 初期値
   })
-
-  const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
   const medicationLevels: MedicationLevel[] = ['多く飲んだ', '飲んだ', '少なめに飲んだ', '飲んでない']
-  const healthConditions: HealthCondition[] = ['○', '×', '△']
+  const healthConditions: HealthCondition[] = ['〇', '×', '△']
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  // DBからtimeslotsを取得
+  useEffect(() => {
+    const fetchTimeSlots = async () => {
+      try {
+        const response = await fetch('/api/timeslots')
+        const data = await response.json()
+        
+        if (data.timeslots && data.timeslots.length > 0) {
+          const slots = data.timeslots.map((slot: any) => slot.name)
+          setTimeSlots(slots)
+          
+          // 初期のmedicationLevelオブジェクトを設定
+          const initialMedicationLevel: { [key: string]: MedicationLevel | null } = {}
+          slots.forEach((slot: string) => {
+            initialMedicationLevel[slot] = null
+          })
+          
+          setFormData(prev => ({
+            ...prev,
+            medicationLevel: initialMedicationLevel
+          }))
+        } else {
+          // DBにデータがない場合はデフォルトを使用
+          const defaultSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
+          setTimeSlots(defaultSlots)
+          
+          const initialMedicationLevel: { [key: string]: MedicationLevel | null } = {}
+          defaultSlots.forEach((slot: string) => {
+            initialMedicationLevel[slot] = null
+          })
+          
+          setFormData(prev => ({
+            ...prev,
+            medicationLevel: initialMedicationLevel
+          }))
+        }
+      } catch (error) {
+        console.error('Error fetching timeslots:', error)
+        // エラー時はデフォルトを使用
+        const defaultSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
+        setTimeSlots(defaultSlots)
+        
+        const initialMedicationLevel: { [key: string]: MedicationLevel | null } = {}
+        defaultSlots.forEach((slot: string) => {
+          initialMedicationLevel[slot] = null
+        })
+        
+        setFormData(prev => ({
+          ...prev,
+          medicationLevel: initialMedicationLevel
+        }))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTimeSlots()
+  }, [])
+
   //フォームリセットのためのデータ
-  const initialFormData: DiagnosisData = {
-    medicationLevel: {
-      '起きた時': null,
-      '朝': null,
-      '昼': null,
-      '夜': null,
-      '寝る前': null
-    },
-    healthCondition: null,
-    consultation: '',
-    timestamp: '',
-    tonyoUsed: false
+  const getInitialFormData = (): DiagnosisData => {
+    const initialMedicationLevel: { [key: string]: MedicationLevel | null } = {}
+    timeSlots.forEach((slot: string) => {
+      initialMedicationLevel[slot] = null
+    })
+    
+    return {
+      medicationLevel: initialMedicationLevel,
+      healthCondition: null,
+      consultation: '',
+      timestamp: '',
+      tonyoUsed: false
+    }
   }
 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     try {
-      // ローカルストレージに保存
-      const existingData = localStorage.getItem('diagnosisData')
-      const dataArray = existingData ? JSON.parse(existingData) : []
-      const newData = {
+      // DB経由のtimeslotsのみ送信するようにフィルタリング
+      const filteredMedicationLevel: { [key: string]: string | null } = {}
+      timeSlots.forEach(slot => {
+        filteredMedicationLevel[slot] = formData.medicationLevel[slot]
+      })
+
+      const submissionData = {
         ...formData,
-        id: Date.now().toString()
+        medicationLevel: filteredMedicationLevel,
+        timestamp: new Date().toISOString()
       }
-      dataArray.push(newData)
-      localStorage.setItem('diagnosisData', JSON.stringify(dataArray))
+
+      // DBに保存
+      const response = await fetch('/api/diagnosis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(submissionData)
+      })
+
+      if (!response.ok) {
+        throw new Error('送信に失敗しました')
+      }
+
+      const result = await response.json()
+      
+      // JSONファイルとしてダウンロード
+      downloadAsJson(result.data)
 
       setIsModalOpen(true)  // モーダルを表示
-      setFormData(initialFormData)  // フォームリセットなど
+      setFormData(getInitialFormData())  // フォームリセット
       } catch(error) {
         console.error("送信エラー:", error)
+        alert("送信に失敗しました。もう一度お試しください。")
       }
+  }
+
+  // JSONファイルダウンロード機能
+  const downloadAsJson = (data: any) => {
+    const jsonString = JSON.stringify(data, null, 2)
+    const blob = new Blob([jsonString], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `diagnosis_${new Date().getTime()}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+            診断後ケアフォーム
+          </h1>
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">時間帯情報を読み込み中...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -74,7 +179,13 @@ const DiagnosisForm = () => {
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
               1. 時間帯別の薬の投与量を記録してください
             </h2>
-            {timeSlots.map((slot) => (
+            {timeSlots.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>設定された時間帯がありません。</p>
+                <p className="text-sm mt-2">管理者にお問い合わせください。</p>
+              </div>
+            ) : (
+              timeSlots.map((slot) => (
               <div key={slot} className="mb-6">
                 <h3 className="font-semibold text-gray-700 mb-2">{slot}</h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -108,7 +219,8 @@ const DiagnosisForm = () => {
                   ))}
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* 体調 */}

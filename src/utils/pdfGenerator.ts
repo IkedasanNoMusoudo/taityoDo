@@ -14,9 +14,15 @@ export const generatePDF = (report: ReportData) => {
   doc.text(`記録日時: ${new Date(report.timestamp).toLocaleDateString('ja-JP')}`, 20, 50)
   
   // 基本情報テーブル
+  const medicationLevelText = report.medicationLevel 
+    ? Object.entries(report.medicationLevel)
+        .map(([time, level]) => `${time}: ${level || '未記録'}`)
+        .join(', ')
+    : '未記録'
+    
   const tableData = [
     ['項目', '内容'],
-    ['薬の投与量', report.medicationLevel || '未記録'],
+    ['薬の投与量', medicationLevelText],
     ['体調', report.healthCondition || '未記録'],
   ]
   
