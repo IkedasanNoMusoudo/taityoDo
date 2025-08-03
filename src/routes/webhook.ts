@@ -300,7 +300,7 @@ const textEventHandler = async (
 		if (userInfo) {
 			const response: TextMessage = {
 				type: "text",
-				text: `${userInfo.name}さん、体調記録は以下のURLからお願いします：\nhttps://example.com/diagnosis`,
+				text: `${userInfo.name}さん、体調記録は以下のURLからお願いします：\nhttps://ed6df3b3.taicho-do-31587351.pages.dev/`,
 			};
 			await fetch(getReplyUrl(), {
 				body: JSON.stringify({
@@ -493,7 +493,7 @@ const scheduled = async (
 									to: user.line_user_id,
 									messages: [{
 										"type": "text",
-										"text": `${user.name}さん、こんばんは。今日の体調記録をお願いします。以下のURLから入力してください：\nhttps://example.com/diagnosis`
+										"text": `${user.name}さん、こんばんは。今日の体調記録をお願いします。以下のURLから入力してください：\nhttps://ed6df3b3.taicho-do-31587351.pages.dev/`
 									}],
 								}),
 								method: "POST",
