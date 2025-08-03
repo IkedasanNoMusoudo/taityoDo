@@ -1,18 +1,14 @@
 -- Migration number: 0003 	 2025-08-02T16:56:22.598Z
--- Update intake_results table to support rescue medication (tonpuku)
+-- Update intake_results table schema to match new requirements
 -- Changes:
--- 1. alert_rule_id: NOT NULL UNIQUE -> UNIQUE (allow NULL for rescue medication)
--- 2. Add taken_at column for rescue medication timestamp
+-- 1. Simplify schema structure to match provided specification
 
 -- Step 1: Create new table with updated schema
 CREATE TABLE intake_results_new (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   activity_log_id INTEGER NOT NULL,
-  alert_rule_id INTEGER UNIQUE,  -- Changed: removed NOT NULL, allow NULL for rescue medication
-  intake_status TEXT CHECK (intake_status IN (
-    '多く飲んだ', '飲めた', '少なめに飲んだ', '飲んでない'
-  )) NOT NULL,
-  taken_at TEXT,  -- New: timestamp for rescue medication (e.g., '14:35')
+  alert_rule_id INTEGER NOT NULL,
+  intake_status TEXT NOT NULL,
   FOREIGN KEY (activity_log_id) REFERENCES activity_logs(id),
   FOREIGN KEY (alert_rule_id) REFERENCES alert_rules(id)
 );
