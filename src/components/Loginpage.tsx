@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const { login, loading } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -12,14 +14,16 @@ const LoginPage = () => {
     setError('')
 
     try {
-      // 例：SpliteのログインAPI呼び出し（仮想処理）
-      const isAuthenticated = email === 'test@example.com' && password === 'password123'
-      if (!isAuthenticated) throw new Error('認証に失敗しました')
+      const success = await login(email, password)
+      if (!success) {
+        setError('認証に失敗しました')
+        return
+      }
 
       // ログイン成功 → ダッシュボードへ遷移
       navigate('/')
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message || 'ログイン中にエラーが発生しました')
     }
   }
 
@@ -59,11 +63,18 @@ const LoginPage = () => {
             新規作成の方はこちらから
         </button>
         
+        <div className="bg-blue-50 p-3 rounded text-sm text-blue-700">
+          <p>デモ用ログイン情報:</p>
+          <p>Email: test@example.com</p>
+          <p>Password: password</p>
+        </div>
+
         <button
           type="submit"
-          className="w-full bg-sky-600 text-white py-2 rounded hover:bg-sky-700 transition"
+          disabled={loading}
+          className="w-full bg-sky-600 text-white py-2 rounded hover:bg-sky-700 transition disabled:bg-gray-400"
         >
-          ログイン
+          {loading ? 'ログイン中...' : 'ログイン'}
         </button>
       </form>
     </div>

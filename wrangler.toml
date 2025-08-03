@@ -3,7 +3,10 @@ name = "after-care"
 main = "src/index.ts"
 compatibility_date = "2023-12-01"
 
+[vars]
+GEMINI_API_KEY = "AIzaSyCqiPS0wfXpRrJXOlYXVgDLSC_WYrvfSmI"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "after-care-db"
-database_id = "after-care-db"
+database_id = "dec1b68a-74c2-41ff-848c-072870b13752"

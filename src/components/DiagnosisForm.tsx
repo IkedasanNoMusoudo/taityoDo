@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DiagnosisData, MedicationLevel, HealthCondition, TimeSlot } from '../types'
+import { useAuth } from '../contexts/AuthContext'
+import { apiService } from '../services/api'
 
 const DiagnosisForm = () => {
   const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuth()
   const [formData, setFormData] = useState<DiagnosisData>({
     medicationLevel: {
       '起きた時': null,
@@ -24,6 +27,9 @@ const DiagnosisForm = () => {
   const healthConditions: HealthCondition[] = ['○', '×', '△']
   // 診断後の励ましコメントのためのuseState
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [ragFeedback, setRagFeedback] = useState<string>('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string>('')
 
 
   //フォームリセットのためのデータ
@@ -43,11 +49,19 @@ const DiagnosisForm = () => {
   }
 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (!isAuthenticated || !user) {
+      setSubmitError('ログインが必要です')
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitError('')
+    
     try {
-      // ローカルストレージに保存
+      // まずlocalStorageに保存（バックアップとして）
       const existingData = localStorage.getItem('diagnosisData')
       const dataArray = existingData ? JSON.parse(existingData) : []
       const newData = {
@@ -57,11 +71,27 @@ const DiagnosisForm = () => {
       dataArray.push(newData)
       localStorage.setItem('diagnosisData', JSON.stringify(dataArray))
 
-      setIsModalOpen(true)  // モーダルを表示
-      setFormData(initialFormData)  // フォームリセットなど
-      } catch(error) {
-        console.error("送信エラー:", error)
+      // バックエンドAPIを呼び出してRAGフィードバックを取得
+      const response = await apiService.createRecord(formData, user.id)
+      
+      if (response.error) {
+        setSubmitError(`送信エラー: ${response.error}`)
+        setRagFeedback('記録は保存されました。励ましメッセージを取得できませんでしたが、頑張っていますね！')
+      } else if (response.data) {
+        setRagFeedback(response.data.feedback)
       }
+
+      setIsModalOpen(true)  // モーダルを表示
+      setFormData(initialFormData)  // フォームリセット
+      
+    } catch(error) {
+      console.error("送信エラー:", error)
+      setSubmitError('送信中にエラーが発生しました')
+      setRagFeedback('記録は保存されました。頑張りましたね！')
+      setIsModalOpen(true)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -270,35 +300,75 @@ const DiagnosisForm = () => {
             />
           </div>
 
+          {/* エラー表示 */}
+          {submitError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {submitError}
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+              ログインしてRAG機能をお使いください
+            </div>
+          )}
+
           {/* 送信ボタン */}
           <div className="pt-4">
             <button
               type="submit"
               disabled={
+                isSubmitting ||
                 !formData.healthCondition ||
                 (!formData.skipMedication && Object.values(formData.medicationLevel).some((v) => v === null))
               }
               className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
-              レポートを出す
+              {isSubmitting ? '送信中...' : 'レポートを出す'}
             </button>
           </div>
           
-          {/* モーダル（送信後） */}
+          {/* RAGフィードバック付きモーダル（送信後） */}
           {isModalOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-              <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full text-center">
+              <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full text-center mx-4">
                 <h2 className="text-2xl font-bold text-green-700 mb-4">お疲れさまでした！</h2>
+                
+                {/* RAGフィードバック表示 */}
+                {ragFeedback && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h3 className="text-lg font-semibold text-blue-800 mb-2">💬 AIからのメッセージ</h3>
+                    <p className="text-blue-700 whitespace-pre-line leading-relaxed">
+                      {ragFeedback}
+                    </p>
+                  </div>
+                )}
+                
                 <p className="text-gray-700 mb-6">今日もよく記録できました 😊</p>
-                <button
-                  onClick={() => {
-                    setIsModalOpen(false)
-                    navigate('/report') // モーダル閉じた後にreportに遷移
-                  }}
-                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-                >
-                  閉じる
-                </button>
+                
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(false)
+                      setRagFeedback('')
+                      setSubmitError('')
+                    }}
+                    className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
+                  >
+                    続けて記録
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(false)
+                      setRagFeedback('')
+                      setSubmitError('')
+                      navigate('/report')
+                    }}
+                    className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                  >
+                    レポートを見る
+                  </button>
+                </div>
               </div>
             </div>
           )}

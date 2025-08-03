@@ -2,22 +2,65 @@ import { useState, useEffect, useRef } from 'react'
 import { ReportData, MedicationLevel, TimeSlot } from '../types'
 import { BarChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { generatePDF } from '../utils/pdfGenerator'
+import { useAuth } from '../contexts/AuthContext'
+import { apiService, MedicalReportResponse } from '../services/api'
 
 const ReportView = () => {
+  const { user, isAuthenticated } = useAuth()
   const [reports, setReports] = useState<ReportData[]>([])
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null)
+  const [medicalReport, setMedicalReport] = useState<MedicalReportResponse | null>(null)
+  const [isLoadingReport, setIsLoadingReport] = useState(false)
+  const [reportError, setReportError] = useState<string>('')
 
-  // diagnosisDataというローカルストレージから取得
+  // データ取得（localStorage + API）
   useEffect(() => {
-    const savedData = localStorage.getItem('diagnosisData')
-    if (savedData) {
-      const data = JSON.parse(savedData)
-      setReports(data)
-      if (data.length > 0) {
-        setSelectedReport(data[data.length - 1]) // 最新のレポートを選択
+    const loadReports = async () => {
+      // まずlocalStorageから取得（オフライン対応）
+      const savedData = localStorage.getItem('diagnosisData')
+      if (savedData) {
+        const data = JSON.parse(savedData)
+        setReports(data)
+        if (data.length > 0) {
+          setSelectedReport(data[data.length - 1]) // 最新のレポートを選択
+        }
+      }
+
+      // 認証済みユーザーの場合、AIレポートを生成
+      if (isAuthenticated && user) {
+        await generateMedicalReport()
       }
     }
-  }, [])
+
+    loadReports()
+  }, [isAuthenticated, user])
+
+  // AI医療レポート生成
+  const generateMedicalReport = async () => {
+    if (!user) return
+
+    setIsLoadingReport(true)
+    setReportError('')
+
+    try {
+      // 過去30日のレポートを生成
+      const endDate = new Date().toISOString().split('T')[0]
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
+      const response = await apiService.generateMedicalReport(user.id, startDate, endDate)
+      
+      if (response.error) {
+        setReportError(`AIレポート生成エラー: ${response.error}`)
+      } else if (response.data) {
+        setMedicalReport(response.data)
+      }
+    } catch (error) {
+      console.error('Medical report generation failed:', error)
+      setReportError('AIレポートの生成中にエラーが発生しました')
+    } finally {
+      setIsLoadingReport(false)
+    }
+  }
 
   // 折線グラフ情報の取得のための仕組み
   const chartRef = useRef<HTMLDivElement>(null)
@@ -144,12 +187,12 @@ const ReportView = () => {
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-gray-700 mb-2">薬の投与量</h3>
-                  <p className="text-gray-800">{Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
-                    <p key={time}>
+                  <div className="text-gray-800">{Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
+                    <div key={time}>
                       {time}: {level ?? '未記録'}
-                    </p>
+                    </div>
                   ))}
-                  </p>
+                  </div>
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -185,14 +228,89 @@ const ReportView = () => {
               </div>
             )}
 
-            {/* AI推奨事項（将来的な実装） */}
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-blue-700 mb-2">AI推奨事項</h3>
-              <p className="text-blue-800">
-                {selectedReport.aiRecommendation || 
-                  '前回のあなたは○○をして解決していました（AI機能は将来的に実装予定）'}
-              </p>
-            </div>
+            {/* AIレポートセクション */}
+            {isAuthenticated ? (
+              <div className="space-y-4">
+                {/* 医師向けAIレポート */}
+                <div className="bg-green-50 border border-green-200 p-6 rounded-lg">
+                  <h3 className="font-semibold text-green-800 mb-4 flex items-center">
+                    🤖 AI医療レポート
+                    {isLoadingReport && <span className="ml-2 text-sm">(生成中...)</span>}
+                  </h3>
+                  
+                  {reportError && (
+                    <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
+                      {reportError}
+                    </div>
+                  )}
+
+                  {medicalReport ? (
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-medium text-green-700 mb-2">📊 期間サマリー</h4>
+                        <p className="text-sm text-gray-600 mb-2">
+                          {medicalReport.periodStart} ～ {medicalReport.periodEnd} 
+                          （{medicalReport.recordCount}件の記録）
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium text-green-700 mb-2">📝 客観的要約</h4>
+                        <p className="text-green-800 whitespace-pre-line bg-white p-3 rounded border text-sm">
+                          {medicalReport.objectiveSummary}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium text-green-700 mb-2">⚕️ 医師向け重要事項</h4>
+                        <div className="text-green-800 whitespace-pre-line bg-white p-3 rounded border text-sm">
+                          {medicalReport.medicalSummary}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={generateMedicalReport}
+                        disabled={isLoadingReport}
+                        className="text-sm bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400"
+                      >
+                        レポートを更新
+                      </button>
+                    </div>
+                  ) : !isLoadingReport ? (
+                    <div className="text-center py-4">
+                      <p className="text-green-700 mb-3">AIレポートを生成できます</p>
+                      <button
+                        onClick={generateMedicalReport}
+                        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                      >
+                        AIレポートを生成
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+                      <p className="text-green-700">AIレポートを生成中...</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 従来のAI推奨事項 */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-blue-700 mb-2">💡 AI推奨事項</h3>
+                  <p className="text-blue-800">
+                    {selectedReport.aiRecommendation || 
+                      '記録を続けることで、よりパーソナライズされた推奨事項を提供できます'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                <h3 className="font-semibold text-yellow-700 mb-2">🔐 ログインが必要</h3>
+                <p className="text-yellow-800">
+                  AIレポート機能を使用するにはログインしてください
+                </p>
+              </div>
+            )}
 
             {/* 投薬量グラフ */}
             <div className="bg-white rounded-lg shadow p-6" ref={chartRef}>
