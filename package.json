@@ -11,6 +11,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@line/bot-sdk": "^10.0.0",
     "@google/generative-ai": "^0.24.1",
     "hono": "^4.8.12",
     "html-to-image": "^1.11.13",
