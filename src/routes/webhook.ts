@@ -6,9 +6,8 @@ import {
 } from "@line/bot-sdk";
 
 type Env = {
-  DB: any // D1Database type - using any for now to avoid type issues
-  LINE_CHANNEL_ACCESS_TOKEN: string;
-  USER_ID_MOCK: string;
+	DB: any // D1Database type - using any for now to avoid type issues
+	LINE_CHANNEL_ACCESS_TOKEN: string;
 }
 
 // ユーザー情報の型定義
@@ -21,10 +20,15 @@ interface UserInfo {
 }
 
 // TODO: LINE APIのURLを実装時に使用
-// const REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
-// const PUSH_URL = 'https://api.line.me/v2/bot/message/push'
+const REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
+const PUSH_URL = 'https://api.line.me/v2/bot/message/push'
+const REPLY_MOCK_URL = 'https://api.example.com/v2/bot/message/reply'
+const PUSH_MOCK_URL = 'https://api.example.com/v2/bot/message/push'
+const IS_MOCK = false
 
-const IS_MOCK = true
+// IS_MOCKフラグに基づいてURLを選択
+const getReplyUrl = () => IS_MOCK ? REPLY_MOCK_URL : REPLY_URL
+const getPushUrl = () => IS_MOCK ? PUSH_MOCK_URL : PUSH_URL
 
 // 時刻テキストのバリデーション関数
 const validateNotificationTimes = (timesText: string): { isValid: boolean; error?: string; times?: string[] } => {
@@ -298,7 +302,7 @@ const textEventHandler = async (
 				type: "text",
 				text: `${userInfo.name}さん、体調記録は以下のURLからお願いします：\nhttps://example.com/diagnosis`,
 			};
-			await fetch("https://api.example.com/v2/bot/message/reply", {
+			await fetch(getReplyUrl(), {
 				body: JSON.stringify({
 					replyToken: replyToken,
 					messages: [response],
@@ -323,7 +327,7 @@ const textEventHandler = async (
 					type: "text",
 					text: `時刻の入力に問題があります：${timeValidation.error}\n\n正しい形式：\n名前（漢字）\nメールアドレス\nパスワード\n通知時刻（hh:mm形式、カンマ区切り、例：08:00,12:00,20:00 または なし）`,
 				};
-				await fetch("https://api.example.com/v2/bot/message/reply", {
+				await fetch(getReplyUrl(), {
 					body: JSON.stringify({
 						replyToken: replyToken,
 						messages: [response],
@@ -354,7 +358,7 @@ const textEventHandler = async (
 						type: "text",
 						text: `${name}さん、登録が完了しました！これから体調管理をサポートさせていただきます。`,
 					};
-					await fetch("https://api.example.com/v2/bot/message/reply", {
+					await fetch(getReplyUrl(), {
 						body: JSON.stringify({
 							replyToken: replyToken,
 							messages: [response],
@@ -370,7 +374,7 @@ const textEventHandler = async (
 						type: "text",
 						text: "登録に失敗しました。もう一度お試しください。",
 					};
-					await fetch("https://api.example.com/v2/bot/message/reply", {
+					await fetch(getReplyUrl(), {
 						body: JSON.stringify({
 							replyToken: replyToken,
 							messages: [response],
@@ -387,7 +391,7 @@ const textEventHandler = async (
 					type: "text",
 					text: "正しい形式で入力してください：\n名前（漢字）\nメールアドレス\nパスワード\n通知時刻（hh:mm形式、カンマ区切り、例：08:00,12:00,20:00 または なし）",
 				};
-				await fetch("https://api.example.com/v2/bot/message/reply", {
+				await fetch(getReplyUrl(), {
 					body: JSON.stringify({
 						replyToken: replyToken,
 						messages: [response],
@@ -404,7 +408,7 @@ const textEventHandler = async (
 				type: "text",
 				text: "以下の形式で入力してください：\n名前（漢字）\nメールアドレス\nパスワード\n通知時刻（hh:mm形式、カンマ区切り、例：08:00,12:00,20:00 または なし）",
 			};
-			await fetch("https://api.example.com/v2/bot/message/reply", {
+			await fetch(getReplyUrl(), {
 				body: JSON.stringify({
 					replyToken: replyToken,
 					messages: [response],
@@ -437,7 +441,7 @@ const followEventHandler = async (
 		type: "text",
 		text: text,
 	};
-	await fetch("https://api.example.com/v2/bot/message/reply", {
+	await fetch(getReplyUrl(), {
 		body: JSON.stringify({
 			replyToken: replyToken,
 			messages: [response],
@@ -464,12 +468,13 @@ const scheduled = async (
 	const currentTime = `${utc.getHours().toString().padStart(2, '0')}:${utc.getMinutes().toString().padStart(2, '0')}`;
 	
 	try {
-		// 全ユーザーの名前、line_user_id、通知時刻をDBから取得（通知設定なしも含む）
+		// 全ユーザーの名前、line_user_id、通知時刻をDBから取得（line_idがnullでないもののみ）
 		const usersResult = await db.prepare(`
 			SELECT u.name, a.line_id as line_user_id, rrr.alert_time, rrr.enabled
 			FROM users u
 			JOIN accounts a ON u.account_id = a.id
 			LEFT JOIN record_reminder_rules rrr ON u.id = rrr.user_id
+			WHERE a.line_id IS NOT NULL
 		`).all();
 		
 		if (usersResult.results && usersResult.results.length > 0) {
@@ -483,7 +488,7 @@ const scheduled = async (
 				await Promise.all(
 					usersToNotify.map(async (user: any) => {
 						try {
-							await fetch("https://api.example.com/v2/bot/message/push", {
+							await fetch(getPushUrl(), {
 								body: JSON.stringify({
 									to: user.line_user_id,
 									messages: [{
@@ -508,6 +513,7 @@ const scheduled = async (
 		console.error('スケジュールタスクエラー:', error);
 	}
 }
+
 
 
 export default {

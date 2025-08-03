@@ -6,6 +6,7 @@ import webhook from './routes/webhook'
 type Env = {
   DB: any // D1Database type - using any for now to avoid type issues
   GEMINI_API_KEY: string
+  LINE_CHANNEL_ACCESS_TOKEN: string
 }
 
 const app = new Hono<{ Bindings: Env }>()
