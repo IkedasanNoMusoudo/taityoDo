@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ReportData, MedicationLevel, TimeSlot } from '../types'
 import { BarChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { generatePDF } from '../utils/pdfGenerator'
@@ -7,6 +7,7 @@ const ReportView = () => {
   const [reports, setReports] = useState<ReportData[]>([])
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null)
 
+  // diagnosisDataというローカルストレージから取得
   useEffect(() => {
     const savedData = localStorage.getItem('diagnosisData')
     if (savedData) {
@@ -17,15 +18,16 @@ const ReportView = () => {
       }
     }
   }, [])
+
+  // 折線グラフ情報の取得のための仕組み
+  const chartRef = useRef<HTMLDivElement>(null)
  
   // PDF出力
   const handleGeneratePDF = () => {
-    if (selectedReport) {
-      generatePDF(selectedReport)
+    if (selectedReport && chartRef.current) {
+      generatePDF(selectedReport, chartRef.current!)
     }
   }
-
-  
 
 
   //　レポートの出力日付
@@ -54,7 +56,7 @@ const ReportView = () => {
     const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
     return timeSlots.map((slot) => ({
       name: slot,
-      value: data.reduce(
+      value: data.filter(report => report.tonyoUsed).reduce(
         (sum, report) => {
           const level = report.medicationLevel?.[slot] ?? '飲んでない'
           return sum + medicationLevel(level)
@@ -160,7 +162,6 @@ const ReportView = () => {
                     {selectedReport.tonyoUsed ? '使用した' : '使用していない'}
                   </p>
                 </div>
-
               </div>
 
               {/* 相談・対応策 */}
@@ -171,6 +172,18 @@ const ReportView = () => {
                 </p>
               </div>
             </div>
+            
+            {/** 屯用薬を使用した場合のレポート表示 */}
+            {selectedReport.tonyoUsed && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-700 mb-2">薬の投与量（屯用薬）</h3>
+                {Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
+                  <p className="text-gray-800" key={time}>
+                    {time}: {level ?? '未記録'}
+                  </p>
+                ))}
+              </div>
+            )}
 
             {/* AI推奨事項（将来的な実装） */}
             <div className="bg-blue-50 p-4 rounded-lg">
@@ -182,7 +195,7 @@ const ReportView = () => {
             </div>
 
             {/* 投薬量グラフ */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6" ref={chartRef}>
               <h3 className="text-xl font-semibold text-gray-700 mb-4">投薬傾向（時間帯別）</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={generateChartData(reports)}>
