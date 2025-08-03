@@ -82,7 +82,7 @@ class APIService {
       user_id: userId,
       condition: diagnosisData.healthCondition ? this.mapConditionToBackend(diagnosisData.healthCondition) : null,
       form: fullForm,
-      occurred_at: diagnosisData.timestamp,
+      occurred_at: diagnosisData.timestamp || new Date().toISOString(),
     };
 
     // Debug log for troubleshooting

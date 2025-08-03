@@ -33,11 +33,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    // Clear any old cached user data to ensure fresh login
+    localStorage.removeItem('user');
+    setUser(null);
     setLoading(false);
   }, []);
 

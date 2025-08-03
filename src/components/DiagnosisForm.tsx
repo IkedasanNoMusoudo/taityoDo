@@ -43,7 +43,7 @@ const DiagnosisForm = () => {
     },
     healthCondition: null,
     consultation: '',
-    timestamp: '',
+    timestamp: new Date().toISOString(),
     tonyoUsed: false,
     skipMedication: false
   }
