@@ -26,7 +26,7 @@ const ReportView = () => {
         }
       }
 
-      // 認証済みユーザーの場合、AIレポートを生成
+      // 認証済みなら医療レポートも生成
       if (isAuthenticated && user) {
         await generateMedicalReport()
       }
@@ -37,26 +37,25 @@ const ReportView = () => {
 
   // AI医療レポート生成
   const generateMedicalReport = async () => {
-    if (!user) return
+    if (!isAuthenticated || !user) return
 
     setIsLoadingReport(true)
     setReportError('')
 
     try {
-      // 過去30日のレポートを生成
       const endDate = new Date().toISOString().split('T')[0]
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-
+      
       const response = await apiService.generateMedicalReport(user.id, startDate, endDate)
       
       if (response.error) {
-        setReportError(`AIレポート生成エラー: ${response.error}`)
+        setReportError(response.error)
       } else if (response.data) {
         setMedicalReport(response.data)
       }
     } catch (error) {
       console.error('Medical report generation failed:', error)
-      setReportError('AIレポートの生成中にエラーが発生しました')
+      setReportError('医療レポートの生成に失敗しました')
     } finally {
       setIsLoadingReport(false)
     }
@@ -97,11 +96,12 @@ const ReportView = () => {
 
   const generateChartData = (data: ReportData[]) => {
     const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
+
     return timeSlots.map((slot) => ({
       name: slot,
       value: data.filter(report => report.tonyoUsed).reduce(
         (sum, report) => {
-          const level = report.medicationLevel?.[slot] ?? '飲んでない'
+          const level = report.medicationLevel?.[slot]?.level ?? '飲んでない'
           return sum + medicationLevel(level)
         }, 0)
     }))
@@ -122,6 +122,8 @@ const ReportView = () => {
       </div>
     )
   }
+
+  
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -187,12 +189,16 @@ const ReportView = () => {
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-gray-700 mb-2">薬の投与量</h3>
-                  <div className="text-gray-800">{Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
-                    <div key={time}>
-                      {time}: {level ?? '未記録'}
-                    </div>
-                  ))}
-                  </div>
+                  <p className="text-gray-800">
+                    {Object.entries(selectedReport.medicationLevel).map(([time, detail]) => {
+                      const slot = time as TimeSlot;
+                      return (
+                        <p key={slot}>
+                          {slot}: {detail.level} （{detail.name}  量: {detail.amount ?? '未記録'}）
+                        </p>
+                      );
+                    })}
+                  </p>
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -220,11 +226,14 @@ const ReportView = () => {
             {selectedReport.tonyoUsed && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-gray-700 mb-2">薬の投与量（屯用薬）</h3>
-                {Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
-                  <p className="text-gray-800" key={time}>
-                    {time}: {level ?? '未記録'}
-                  </p>
-                ))}
+                {Object.entries(selectedReport.medicationLevel).map(([time, detail]) => {
+                  const slot = time as TimeSlot;
+                  return (
+                    <p key={slot}>
+                      {slot}: {detail.level} （{detail.name}  量: {detail.amount ?? '未記録'}）
+                    </p>
+                  );
+                })}
               </div>
             )}
 
@@ -233,81 +242,49 @@ const ReportView = () => {
               <div className="space-y-4">
                 {/* 医師向けAIレポート */}
                 <div className="bg-green-50 border border-green-200 p-6 rounded-lg">
-                  <h3 className="font-semibold text-green-800 mb-4 flex items-center">
-                    🤖 AI医療レポート
-                    {isLoadingReport && <span className="ml-2 text-sm">(生成中...)</span>}
-                  </h3>
-                  
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-semibold text-green-700">🏥 AI医療レポート</h3>
+                    <button
+                      onClick={generateMedicalReport}
+                      disabled={isLoadingReport}
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-300"
+                    >
+                      {isLoadingReport ? 'AIレポート生成中...' : 'AIレポートを生成'}
+                    </button>
+                  </div>
+
                   {reportError && (
-                    <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
-                      {reportError}
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-red-600">AIレポート生成エラー: {reportError}</p>
                     </div>
                   )}
 
                   {medicalReport ? (
                     <div className="space-y-4">
-                      <div>
-                        <h4 className="font-medium text-green-700 mb-2">📊 期間サマリー</h4>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {medicalReport.periodStart} ～ {medicalReport.periodEnd} 
-                          （{medicalReport.recordCount}件の記録）
-                        </p>
+                      <div className="bg-white p-4 rounded border">
+                        <h4 className="font-semibold text-gray-700 mb-2">📊 客観的要約</h4>
+                        <p className="text-gray-800 whitespace-pre-line">{medicalReport.objectiveSummary}</p>
                       </div>
-
-                      <div>
-                        <h4 className="font-medium text-green-700 mb-2">📝 客観的要約</h4>
-                        <p className="text-green-800 whitespace-pre-line bg-white p-3 rounded border text-sm">
-                          {medicalReport.objectiveSummary}
-                        </p>
+                      <div className="bg-white p-4 rounded border">
+                        <h4 className="font-semibold text-gray-700 mb-2">🩺 医学的サマリー</h4>
+                        <p className="text-gray-800 whitespace-pre-line">{medicalReport.medicalSummary}</p>
                       </div>
-
-                      <div>
-                        <h4 className="font-medium text-green-700 mb-2">⚕️ 医師向け重要事項</h4>
-                        <div className="text-green-800 whitespace-pre-line bg-white p-3 rounded border text-sm">
-                          {medicalReport.medicalSummary}
-                        </div>
+                      <div className="text-sm text-gray-500">
+                        対象期間: {medicalReport.periodStart} ～ {medicalReport.periodEnd} 
+                        ({medicalReport.recordCount}件の記録)
                       </div>
-
-                      <button
-                        onClick={generateMedicalReport}
-                        disabled={isLoadingReport}
-                        className="text-sm bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400"
-                      >
-                        レポートを更新
-                      </button>
-                    </div>
-                  ) : !isLoadingReport ? (
-                    <div className="text-center py-4">
-                      <p className="text-green-700 mb-3">AIレポートを生成できます</p>
-                      <button
-                        onClick={generateMedicalReport}
-                        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                      >
-                        AIレポートを生成
-                      </button>
                     </div>
                   ) : (
-                    <div className="text-center py-4">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
-                      <p className="text-green-700">AIレポートを生成中...</p>
-                    </div>
+                    <p className="text-gray-600">AIレポートを生成してください</p>
                   )}
-                </div>
-
-                {/* 従来のAI推奨事項 */}
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-blue-700 mb-2">💡 AI推奨事項</h3>
-                  <p className="text-blue-800">
-                    {selectedReport.aiRecommendation || 
-                      '記録を続けることで、よりパーソナライズされた推奨事項を提供できます'}
-                  </p>
                 </div>
               </div>
             ) : (
-              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                <h3 className="font-semibold text-yellow-700 mb-2">🔐 ログインが必要</h3>
-                <p className="text-yellow-800">
-                  AIレポート機能を使用するにはログインしてください
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-blue-700 mb-2">AI推奨事項</h3>
+                <p className="text-blue-800">
+                  {selectedReport.aiRecommendation || 
+                    '前回のあなたは○○をして解決していました（AI機能は将来的に実装予定）'}
                 </p>
               </div>
             )}

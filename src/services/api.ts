@@ -66,8 +66,13 @@ class APIService {
     
     // Format medication data for RAG context
     const medicationInfo = Object.entries(diagnosisData.medicationLevel)
-      .filter(([_, level]) => level !== null)
-      .map(([timeSlot, level]) => `${timeSlot}: ${level}`)
+      .filter(([_, detail]) => detail && detail.level !== '飲んでない')
+      .map(([timeSlot, detail]) => {
+        const parts = [timeSlot, detail.level];
+        if (detail.name) parts.push(`薬名: ${detail.name}`);
+        if (detail.amount) parts.push(`${detail.amount}錠`);
+        return parts.join(' ');
+      })
       .join(', ');
     
     // Combine consultation and medication info

@@ -39,11 +39,14 @@ export const generatePDF = async (report: ReportData, chartElement: HTMLElement)
     doc.setFontSize(12)
     doc.text(`記録日時: ${new Date(report.timestamp).toLocaleDateString('ja-JP')}`, 20, 40)
 
+    
+
     // 基本情報テーブル
     const tableData = [
       ['薬の投与量', Object.entries(report.medicationLevel).map(([k, v]) => `${k}: ${v ?? '未記録'}`).join(', ')],
       ['体調', report.healthCondition],
       ['屯用薬使用', report.tonyoUsed ? '使用した' : '使用していない'],
+      
     ]
     
     autoTable(doc, {

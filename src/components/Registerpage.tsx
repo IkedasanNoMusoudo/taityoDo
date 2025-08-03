@@ -64,7 +64,7 @@ const RegisterPage = () => {
           type="submit"
           className="w-full bg-sky-600 text-white py-2 rounded hover:bg-sky-700 transition"
         >
-          ログイン
+          新規登録
         </button>
       </form>
     </div>

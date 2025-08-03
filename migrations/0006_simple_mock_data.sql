@@ -2,8 +2,8 @@
 
 -- Insert test accounts
 INSERT INTO accounts (email, hashed_password, line_id) VALUES 
-('test.patient@example.com', 'hashed_password_123', 'line_user_001'),
-('patient2@example.com', 'hashed_password_456', 'line_user_002');
+('test.patient@example.com', 'hashed_password_123', null),
+('patient2@example.com', 'hashed_password_456', null);
 
 -- Insert test users
 INSERT INTO users (name, account_id) VALUES 

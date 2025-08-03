@@ -33,4 +33,42 @@ declare global {
     count: number
     duration: number
   }
+
+  // Cloudflare Workers specific types
+  interface RequestInitCfProperties {
+    cf?: {
+      cacheEverything?: boolean
+      cacheTtl?: number
+      cacheTtlByStatus?: Record<string, number>
+      minify?: {
+        javascript?: boolean
+        css?: boolean
+        html?: boolean
+      }
+      mirage?: boolean
+      polish?: 'off' | 'lossy' | 'lossless'
+      resolveOverride?: string
+      apps?: boolean
+      image?: {
+        fit?: 'scale-down' | 'contain' | 'cover' | 'crop' | 'pad'
+        gravity?: 'auto' | 'left' | 'right' | 'top' | 'bottom' | 'center'
+        height?: number
+        width?: number
+        quality?: number
+        format?: 'auto' | 'webp' | 'json' | 'jpeg' | 'jpg' | 'png' | 'gif'
+        [key: string]: any
+      }
+    }
+  }
+
+  interface ScheduledController {
+    scheduledTime: number
+    cron: string
+    noRetry(): void
+  }
+
+  interface ExecutionContext {
+    waitUntil(promise: Promise<any>): void
+    passThroughOnException(): void
+  }
 }

@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/bundle-97J8g4/checked-fetch.js
+// .wrangler/tmp/bundle-ojpwYN/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -782,14 +782,14 @@ var Hono = class {
   }
   #notFoundHandler = notFoundHandler;
   errorHandler = errorHandler;
-  route(path, app4) {
+  route(path, app3) {
     const subApp = this.basePath(path);
-    app4.routes.map((r) => {
+    app3.routes.map((r) => {
       let handler;
-      if (app4.errorHandler === errorHandler) {
+      if (app3.errorHandler === errorHandler) {
         handler = r.handler;
       } else {
-        handler = /* @__PURE__ */ __name(async (c, next) => (await compose([], app4.errorHandler)(c, () => r.handler(c, next))).res, "handler");
+        handler = /* @__PURE__ */ __name(async (c, next) => (await compose([], app3.errorHandler)(c, () => r.handler(c, next))).res, "handler");
         handler[COMPOSED_HANDLER] = r.handler;
       }
       subApp.#addRoute(r.method, r.path, handler);
@@ -1941,1281 +1941,6 @@ medicationInstances.post("/:id/intake", async (c) => {
 });
 var medication_instances_default = medicationInstances;
 
-// src/routes/user-medications.ts
-var userMedications = new Hono2();
-userMedications.get("/:userId/medications", async (c) => {
-  try {
-    const userId = c.req.param("userId");
-    if (!userId) {
-      return c.json({ error: "User ID is required" }, 400);
-    }
-    const { results } = await c.env.DB.prepare(`
-      SELECT 
-        ar.alert_time as time_slot,
-        m.name as medication_name,
-        ar.dosage as dosage_amount
-      FROM alert_rules ar
-      JOIN medications m ON ar.medication_id = m.id
-      WHERE ar.user_id = ?
-      ORDER BY ar.alert_time
-    `).bind(userId).all();
-    if (results.length === 0) {
-      return c.json({
-        message: "No medications found for this user",
-        data: []
-      });
-    }
-    return c.json({
-      user_id: userId,
-      medications: results
-    });
-  } catch (error) {
-    console.error("Error fetching user medications:", error);
-    return c.json({ error: "Failed to fetch user medications" }, 500);
-  }
-});
-var user_medications_default = userMedications;
-
-// node_modules/@google/generative-ai/dist/index.mjs
-var SchemaType;
-(function(SchemaType2) {
-  SchemaType2["STRING"] = "string";
-  SchemaType2["NUMBER"] = "number";
-  SchemaType2["INTEGER"] = "integer";
-  SchemaType2["BOOLEAN"] = "boolean";
-  SchemaType2["ARRAY"] = "array";
-  SchemaType2["OBJECT"] = "object";
-})(SchemaType || (SchemaType = {}));
-var ExecutableCodeLanguage;
-(function(ExecutableCodeLanguage2) {
-  ExecutableCodeLanguage2["LANGUAGE_UNSPECIFIED"] = "language_unspecified";
-  ExecutableCodeLanguage2["PYTHON"] = "python";
-})(ExecutableCodeLanguage || (ExecutableCodeLanguage = {}));
-var Outcome;
-(function(Outcome2) {
-  Outcome2["OUTCOME_UNSPECIFIED"] = "outcome_unspecified";
-  Outcome2["OUTCOME_OK"] = "outcome_ok";
-  Outcome2["OUTCOME_FAILED"] = "outcome_failed";
-  Outcome2["OUTCOME_DEADLINE_EXCEEDED"] = "outcome_deadline_exceeded";
-})(Outcome || (Outcome = {}));
-var POSSIBLE_ROLES = ["user", "model", "function", "system"];
-var HarmCategory;
-(function(HarmCategory2) {
-  HarmCategory2["HARM_CATEGORY_UNSPECIFIED"] = "HARM_CATEGORY_UNSPECIFIED";
-  HarmCategory2["HARM_CATEGORY_HATE_SPEECH"] = "HARM_CATEGORY_HATE_SPEECH";
-  HarmCategory2["HARM_CATEGORY_SEXUALLY_EXPLICIT"] = "HARM_CATEGORY_SEXUALLY_EXPLICIT";
-  HarmCategory2["HARM_CATEGORY_HARASSMENT"] = "HARM_CATEGORY_HARASSMENT";
-  HarmCategory2["HARM_CATEGORY_DANGEROUS_CONTENT"] = "HARM_CATEGORY_DANGEROUS_CONTENT";
-  HarmCategory2["HARM_CATEGORY_CIVIC_INTEGRITY"] = "HARM_CATEGORY_CIVIC_INTEGRITY";
-})(HarmCategory || (HarmCategory = {}));
-var HarmBlockThreshold;
-(function(HarmBlockThreshold2) {
-  HarmBlockThreshold2["HARM_BLOCK_THRESHOLD_UNSPECIFIED"] = "HARM_BLOCK_THRESHOLD_UNSPECIFIED";
-  HarmBlockThreshold2["BLOCK_LOW_AND_ABOVE"] = "BLOCK_LOW_AND_ABOVE";
-  HarmBlockThreshold2["BLOCK_MEDIUM_AND_ABOVE"] = "BLOCK_MEDIUM_AND_ABOVE";
-  HarmBlockThreshold2["BLOCK_ONLY_HIGH"] = "BLOCK_ONLY_HIGH";
-  HarmBlockThreshold2["BLOCK_NONE"] = "BLOCK_NONE";
-})(HarmBlockThreshold || (HarmBlockThreshold = {}));
-var HarmProbability;
-(function(HarmProbability2) {
-  HarmProbability2["HARM_PROBABILITY_UNSPECIFIED"] = "HARM_PROBABILITY_UNSPECIFIED";
-  HarmProbability2["NEGLIGIBLE"] = "NEGLIGIBLE";
-  HarmProbability2["LOW"] = "LOW";
-  HarmProbability2["MEDIUM"] = "MEDIUM";
-  HarmProbability2["HIGH"] = "HIGH";
-})(HarmProbability || (HarmProbability = {}));
-var BlockReason;
-(function(BlockReason2) {
-  BlockReason2["BLOCKED_REASON_UNSPECIFIED"] = "BLOCKED_REASON_UNSPECIFIED";
-  BlockReason2["SAFETY"] = "SAFETY";
-  BlockReason2["OTHER"] = "OTHER";
-})(BlockReason || (BlockReason = {}));
-var FinishReason;
-(function(FinishReason2) {
-  FinishReason2["FINISH_REASON_UNSPECIFIED"] = "FINISH_REASON_UNSPECIFIED";
-  FinishReason2["STOP"] = "STOP";
-  FinishReason2["MAX_TOKENS"] = "MAX_TOKENS";
-  FinishReason2["SAFETY"] = "SAFETY";
-  FinishReason2["RECITATION"] = "RECITATION";
-  FinishReason2["LANGUAGE"] = "LANGUAGE";
-  FinishReason2["BLOCKLIST"] = "BLOCKLIST";
-  FinishReason2["PROHIBITED_CONTENT"] = "PROHIBITED_CONTENT";
-  FinishReason2["SPII"] = "SPII";
-  FinishReason2["MALFORMED_FUNCTION_CALL"] = "MALFORMED_FUNCTION_CALL";
-  FinishReason2["OTHER"] = "OTHER";
-})(FinishReason || (FinishReason = {}));
-var TaskType;
-(function(TaskType2) {
-  TaskType2["TASK_TYPE_UNSPECIFIED"] = "TASK_TYPE_UNSPECIFIED";
-  TaskType2["RETRIEVAL_QUERY"] = "RETRIEVAL_QUERY";
-  TaskType2["RETRIEVAL_DOCUMENT"] = "RETRIEVAL_DOCUMENT";
-  TaskType2["SEMANTIC_SIMILARITY"] = "SEMANTIC_SIMILARITY";
-  TaskType2["CLASSIFICATION"] = "CLASSIFICATION";
-  TaskType2["CLUSTERING"] = "CLUSTERING";
-})(TaskType || (TaskType = {}));
-var FunctionCallingMode;
-(function(FunctionCallingMode2) {
-  FunctionCallingMode2["MODE_UNSPECIFIED"] = "MODE_UNSPECIFIED";
-  FunctionCallingMode2["AUTO"] = "AUTO";
-  FunctionCallingMode2["ANY"] = "ANY";
-  FunctionCallingMode2["NONE"] = "NONE";
-})(FunctionCallingMode || (FunctionCallingMode = {}));
-var DynamicRetrievalMode;
-(function(DynamicRetrievalMode2) {
-  DynamicRetrievalMode2["MODE_UNSPECIFIED"] = "MODE_UNSPECIFIED";
-  DynamicRetrievalMode2["MODE_DYNAMIC"] = "MODE_DYNAMIC";
-})(DynamicRetrievalMode || (DynamicRetrievalMode = {}));
-var GoogleGenerativeAIError = class extends Error {
-  static {
-    __name(this, "GoogleGenerativeAIError");
-  }
-  constructor(message) {
-    super(`[GoogleGenerativeAI Error]: ${message}`);
-  }
-};
-var GoogleGenerativeAIResponseError = class extends GoogleGenerativeAIError {
-  static {
-    __name(this, "GoogleGenerativeAIResponseError");
-  }
-  constructor(message, response) {
-    super(message);
-    this.response = response;
-  }
-};
-var GoogleGenerativeAIFetchError = class extends GoogleGenerativeAIError {
-  static {
-    __name(this, "GoogleGenerativeAIFetchError");
-  }
-  constructor(message, status, statusText, errorDetails) {
-    super(message);
-    this.status = status;
-    this.statusText = statusText;
-    this.errorDetails = errorDetails;
-  }
-};
-var GoogleGenerativeAIRequestInputError = class extends GoogleGenerativeAIError {
-  static {
-    __name(this, "GoogleGenerativeAIRequestInputError");
-  }
-};
-var GoogleGenerativeAIAbortError = class extends GoogleGenerativeAIError {
-  static {
-    __name(this, "GoogleGenerativeAIAbortError");
-  }
-};
-var DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com";
-var DEFAULT_API_VERSION = "v1beta";
-var PACKAGE_VERSION = "0.24.1";
-var PACKAGE_LOG_HEADER = "genai-js";
-var Task;
-(function(Task2) {
-  Task2["GENERATE_CONTENT"] = "generateContent";
-  Task2["STREAM_GENERATE_CONTENT"] = "streamGenerateContent";
-  Task2["COUNT_TOKENS"] = "countTokens";
-  Task2["EMBED_CONTENT"] = "embedContent";
-  Task2["BATCH_EMBED_CONTENTS"] = "batchEmbedContents";
-})(Task || (Task = {}));
-var RequestUrl = class {
-  static {
-    __name(this, "RequestUrl");
-  }
-  constructor(model, task, apiKey, stream, requestOptions) {
-    this.model = model;
-    this.task = task;
-    this.apiKey = apiKey;
-    this.stream = stream;
-    this.requestOptions = requestOptions;
-  }
-  toString() {
-    var _a, _b;
-    const apiVersion = ((_a = this.requestOptions) === null || _a === void 0 ? void 0 : _a.apiVersion) || DEFAULT_API_VERSION;
-    const baseUrl = ((_b = this.requestOptions) === null || _b === void 0 ? void 0 : _b.baseUrl) || DEFAULT_BASE_URL;
-    let url = `${baseUrl}/${apiVersion}/${this.model}:${this.task}`;
-    if (this.stream) {
-      url += "?alt=sse";
-    }
-    return url;
-  }
-};
-function getClientHeaders(requestOptions) {
-  const clientHeaders = [];
-  if (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.apiClient) {
-    clientHeaders.push(requestOptions.apiClient);
-  }
-  clientHeaders.push(`${PACKAGE_LOG_HEADER}/${PACKAGE_VERSION}`);
-  return clientHeaders.join(" ");
-}
-__name(getClientHeaders, "getClientHeaders");
-async function getHeaders(url) {
-  var _a;
-  const headers = new Headers();
-  headers.append("Content-Type", "application/json");
-  headers.append("x-goog-api-client", getClientHeaders(url.requestOptions));
-  headers.append("x-goog-api-key", url.apiKey);
-  let customHeaders = (_a = url.requestOptions) === null || _a === void 0 ? void 0 : _a.customHeaders;
-  if (customHeaders) {
-    if (!(customHeaders instanceof Headers)) {
-      try {
-        customHeaders = new Headers(customHeaders);
-      } catch (e) {
-        throw new GoogleGenerativeAIRequestInputError(`unable to convert customHeaders value ${JSON.stringify(customHeaders)} to Headers: ${e.message}`);
-      }
-    }
-    for (const [headerName, headerValue] of customHeaders.entries()) {
-      if (headerName === "x-goog-api-key") {
-        throw new GoogleGenerativeAIRequestInputError(`Cannot set reserved header name ${headerName}`);
-      } else if (headerName === "x-goog-api-client") {
-        throw new GoogleGenerativeAIRequestInputError(`Header name ${headerName} can only be set using the apiClient field`);
-      }
-      headers.append(headerName, headerValue);
-    }
-  }
-  return headers;
-}
-__name(getHeaders, "getHeaders");
-async function constructModelRequest(model, task, apiKey, stream, body, requestOptions) {
-  const url = new RequestUrl(model, task, apiKey, stream, requestOptions);
-  return {
-    url: url.toString(),
-    fetchOptions: Object.assign(Object.assign({}, buildFetchOptions(requestOptions)), { method: "POST", headers: await getHeaders(url), body })
-  };
-}
-__name(constructModelRequest, "constructModelRequest");
-async function makeModelRequest(model, task, apiKey, stream, body, requestOptions = {}, fetchFn = fetch) {
-  const { url, fetchOptions } = await constructModelRequest(model, task, apiKey, stream, body, requestOptions);
-  return makeRequest(url, fetchOptions, fetchFn);
-}
-__name(makeModelRequest, "makeModelRequest");
-async function makeRequest(url, fetchOptions, fetchFn = fetch) {
-  let response;
-  try {
-    response = await fetchFn(url, fetchOptions);
-  } catch (e) {
-    handleResponseError(e, url);
-  }
-  if (!response.ok) {
-    await handleResponseNotOk(response, url);
-  }
-  return response;
-}
-__name(makeRequest, "makeRequest");
-function handleResponseError(e, url) {
-  let err = e;
-  if (err.name === "AbortError") {
-    err = new GoogleGenerativeAIAbortError(`Request aborted when fetching ${url.toString()}: ${e.message}`);
-    err.stack = e.stack;
-  } else if (!(e instanceof GoogleGenerativeAIFetchError || e instanceof GoogleGenerativeAIRequestInputError)) {
-    err = new GoogleGenerativeAIError(`Error fetching from ${url.toString()}: ${e.message}`);
-    err.stack = e.stack;
-  }
-  throw err;
-}
-__name(handleResponseError, "handleResponseError");
-async function handleResponseNotOk(response, url) {
-  let message = "";
-  let errorDetails;
-  try {
-    const json = await response.json();
-    message = json.error.message;
-    if (json.error.details) {
-      message += ` ${JSON.stringify(json.error.details)}`;
-      errorDetails = json.error.details;
-    }
-  } catch (e) {
-  }
-  throw new GoogleGenerativeAIFetchError(`Error fetching from ${url.toString()}: [${response.status} ${response.statusText}] ${message}`, response.status, response.statusText, errorDetails);
-}
-__name(handleResponseNotOk, "handleResponseNotOk");
-function buildFetchOptions(requestOptions) {
-  const fetchOptions = {};
-  if ((requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.signal) !== void 0 || (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeout) >= 0) {
-    const controller = new AbortController();
-    if ((requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeout) >= 0) {
-      setTimeout(() => controller.abort(), requestOptions.timeout);
-    }
-    if (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.signal) {
-      requestOptions.signal.addEventListener("abort", () => {
-        controller.abort();
-      });
-    }
-    fetchOptions.signal = controller.signal;
-  }
-  return fetchOptions;
-}
-__name(buildFetchOptions, "buildFetchOptions");
-function addHelpers(response) {
-  response.text = () => {
-    if (response.candidates && response.candidates.length > 0) {
-      if (response.candidates.length > 1) {
-        console.warn(`This response had ${response.candidates.length} candidates. Returning text from the first candidate only. Access response.candidates directly to use the other candidates.`);
-      }
-      if (hadBadFinishReason(response.candidates[0])) {
-        throw new GoogleGenerativeAIResponseError(`${formatBlockErrorMessage(response)}`, response);
-      }
-      return getText(response);
-    } else if (response.promptFeedback) {
-      throw new GoogleGenerativeAIResponseError(`Text not available. ${formatBlockErrorMessage(response)}`, response);
-    }
-    return "";
-  };
-  response.functionCall = () => {
-    if (response.candidates && response.candidates.length > 0) {
-      if (response.candidates.length > 1) {
-        console.warn(`This response had ${response.candidates.length} candidates. Returning function calls from the first candidate only. Access response.candidates directly to use the other candidates.`);
-      }
-      if (hadBadFinishReason(response.candidates[0])) {
-        throw new GoogleGenerativeAIResponseError(`${formatBlockErrorMessage(response)}`, response);
-      }
-      console.warn(`response.functionCall() is deprecated. Use response.functionCalls() instead.`);
-      return getFunctionCalls(response)[0];
-    } else if (response.promptFeedback) {
-      throw new GoogleGenerativeAIResponseError(`Function call not available. ${formatBlockErrorMessage(response)}`, response);
-    }
-    return void 0;
-  };
-  response.functionCalls = () => {
-    if (response.candidates && response.candidates.length > 0) {
-      if (response.candidates.length > 1) {
-        console.warn(`This response had ${response.candidates.length} candidates. Returning function calls from the first candidate only. Access response.candidates directly to use the other candidates.`);
-      }
-      if (hadBadFinishReason(response.candidates[0])) {
-        throw new GoogleGenerativeAIResponseError(`${formatBlockErrorMessage(response)}`, response);
-      }
-      return getFunctionCalls(response);
-    } else if (response.promptFeedback) {
-      throw new GoogleGenerativeAIResponseError(`Function call not available. ${formatBlockErrorMessage(response)}`, response);
-    }
-    return void 0;
-  };
-  return response;
-}
-__name(addHelpers, "addHelpers");
-function getText(response) {
-  var _a, _b, _c, _d;
-  const textStrings = [];
-  if ((_b = (_a = response.candidates) === null || _a === void 0 ? void 0 : _a[0].content) === null || _b === void 0 ? void 0 : _b.parts) {
-    for (const part of (_d = (_c = response.candidates) === null || _c === void 0 ? void 0 : _c[0].content) === null || _d === void 0 ? void 0 : _d.parts) {
-      if (part.text) {
-        textStrings.push(part.text);
-      }
-      if (part.executableCode) {
-        textStrings.push("\n```" + part.executableCode.language + "\n" + part.executableCode.code + "\n```\n");
-      }
-      if (part.codeExecutionResult) {
-        textStrings.push("\n```\n" + part.codeExecutionResult.output + "\n```\n");
-      }
-    }
-  }
-  if (textStrings.length > 0) {
-    return textStrings.join("");
-  } else {
-    return "";
-  }
-}
-__name(getText, "getText");
-function getFunctionCalls(response) {
-  var _a, _b, _c, _d;
-  const functionCalls = [];
-  if ((_b = (_a = response.candidates) === null || _a === void 0 ? void 0 : _a[0].content) === null || _b === void 0 ? void 0 : _b.parts) {
-    for (const part of (_d = (_c = response.candidates) === null || _c === void 0 ? void 0 : _c[0].content) === null || _d === void 0 ? void 0 : _d.parts) {
-      if (part.functionCall) {
-        functionCalls.push(part.functionCall);
-      }
-    }
-  }
-  if (functionCalls.length > 0) {
-    return functionCalls;
-  } else {
-    return void 0;
-  }
-}
-__name(getFunctionCalls, "getFunctionCalls");
-var badFinishReasons = [
-  FinishReason.RECITATION,
-  FinishReason.SAFETY,
-  FinishReason.LANGUAGE
-];
-function hadBadFinishReason(candidate) {
-  return !!candidate.finishReason && badFinishReasons.includes(candidate.finishReason);
-}
-__name(hadBadFinishReason, "hadBadFinishReason");
-function formatBlockErrorMessage(response) {
-  var _a, _b, _c;
-  let message = "";
-  if ((!response.candidates || response.candidates.length === 0) && response.promptFeedback) {
-    message += "Response was blocked";
-    if ((_a = response.promptFeedback) === null || _a === void 0 ? void 0 : _a.blockReason) {
-      message += ` due to ${response.promptFeedback.blockReason}`;
-    }
-    if ((_b = response.promptFeedback) === null || _b === void 0 ? void 0 : _b.blockReasonMessage) {
-      message += `: ${response.promptFeedback.blockReasonMessage}`;
-    }
-  } else if ((_c = response.candidates) === null || _c === void 0 ? void 0 : _c[0]) {
-    const firstCandidate = response.candidates[0];
-    if (hadBadFinishReason(firstCandidate)) {
-      message += `Candidate was blocked due to ${firstCandidate.finishReason}`;
-      if (firstCandidate.finishMessage) {
-        message += `: ${firstCandidate.finishMessage}`;
-      }
-    }
-  }
-  return message;
-}
-__name(formatBlockErrorMessage, "formatBlockErrorMessage");
-function __await(v) {
-  return this instanceof __await ? (this.v = v, this) : new __await(v);
-}
-__name(__await, "__await");
-function __asyncGenerator(thisArg, _arguments, generator) {
-  if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-  var g = generator.apply(thisArg, _arguments || []), i, q = [];
-  return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
-    return this;
-  }, i;
-  function verb(n) {
-    if (g[n]) i[n] = function(v) {
-      return new Promise(function(a, b) {
-        q.push([n, v, a, b]) > 1 || resume(n, v);
-      });
-    };
-  }
-  __name(verb, "verb");
-  function resume(n, v) {
-    try {
-      step(g[n](v));
-    } catch (e) {
-      settle(q[0][3], e);
-    }
-  }
-  __name(resume, "resume");
-  function step(r) {
-    r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);
-  }
-  __name(step, "step");
-  function fulfill(value) {
-    resume("next", value);
-  }
-  __name(fulfill, "fulfill");
-  function reject(value) {
-    resume("throw", value);
-  }
-  __name(reject, "reject");
-  function settle(f, v) {
-    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
-  }
-  __name(settle, "settle");
-}
-__name(__asyncGenerator, "__asyncGenerator");
-var responseLineRE = /^data\: (.*)(?:\n\n|\r\r|\r\n\r\n)/;
-function processStream(response) {
-  const inputStream = response.body.pipeThrough(new TextDecoderStream("utf8", { fatal: true }));
-  const responseStream = getResponseStream(inputStream);
-  const [stream1, stream2] = responseStream.tee();
-  return {
-    stream: generateResponseSequence(stream1),
-    response: getResponsePromise(stream2)
-  };
-}
-__name(processStream, "processStream");
-async function getResponsePromise(stream) {
-  const allResponses = [];
-  const reader = stream.getReader();
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      return addHelpers(aggregateResponses(allResponses));
-    }
-    allResponses.push(value);
-  }
-}
-__name(getResponsePromise, "getResponsePromise");
-function generateResponseSequence(stream) {
-  return __asyncGenerator(this, arguments, /* @__PURE__ */ __name(function* generateResponseSequence_1() {
-    const reader = stream.getReader();
-    while (true) {
-      const { value, done } = yield __await(reader.read());
-      if (done) {
-        break;
-      }
-      yield yield __await(addHelpers(value));
-    }
-  }, "generateResponseSequence_1"));
-}
-__name(generateResponseSequence, "generateResponseSequence");
-function getResponseStream(inputStream) {
-  const reader = inputStream.getReader();
-  const stream = new ReadableStream({
-    start(controller) {
-      let currentText = "";
-      return pump();
-      function pump() {
-        return reader.read().then(({ value, done }) => {
-          if (done) {
-            if (currentText.trim()) {
-              controller.error(new GoogleGenerativeAIError("Failed to parse stream"));
-              return;
-            }
-            controller.close();
-            return;
-          }
-          currentText += value;
-          let match = currentText.match(responseLineRE);
-          let parsedResponse;
-          while (match) {
-            try {
-              parsedResponse = JSON.parse(match[1]);
-            } catch (e) {
-              controller.error(new GoogleGenerativeAIError(`Error parsing JSON response: "${match[1]}"`));
-              return;
-            }
-            controller.enqueue(parsedResponse);
-            currentText = currentText.substring(match[0].length);
-            match = currentText.match(responseLineRE);
-          }
-          return pump();
-        }).catch((e) => {
-          let err = e;
-          err.stack = e.stack;
-          if (err.name === "AbortError") {
-            err = new GoogleGenerativeAIAbortError("Request aborted when reading from the stream");
-          } else {
-            err = new GoogleGenerativeAIError("Error reading from the stream");
-          }
-          throw err;
-        });
-      }
-      __name(pump, "pump");
-    }
-  });
-  return stream;
-}
-__name(getResponseStream, "getResponseStream");
-function aggregateResponses(responses) {
-  const lastResponse = responses[responses.length - 1];
-  const aggregatedResponse = {
-    promptFeedback: lastResponse === null || lastResponse === void 0 ? void 0 : lastResponse.promptFeedback
-  };
-  for (const response of responses) {
-    if (response.candidates) {
-      let candidateIndex = 0;
-      for (const candidate of response.candidates) {
-        if (!aggregatedResponse.candidates) {
-          aggregatedResponse.candidates = [];
-        }
-        if (!aggregatedResponse.candidates[candidateIndex]) {
-          aggregatedResponse.candidates[candidateIndex] = {
-            index: candidateIndex
-          };
-        }
-        aggregatedResponse.candidates[candidateIndex].citationMetadata = candidate.citationMetadata;
-        aggregatedResponse.candidates[candidateIndex].groundingMetadata = candidate.groundingMetadata;
-        aggregatedResponse.candidates[candidateIndex].finishReason = candidate.finishReason;
-        aggregatedResponse.candidates[candidateIndex].finishMessage = candidate.finishMessage;
-        aggregatedResponse.candidates[candidateIndex].safetyRatings = candidate.safetyRatings;
-        if (candidate.content && candidate.content.parts) {
-          if (!aggregatedResponse.candidates[candidateIndex].content) {
-            aggregatedResponse.candidates[candidateIndex].content = {
-              role: candidate.content.role || "user",
-              parts: []
-            };
-          }
-          const newPart = {};
-          for (const part of candidate.content.parts) {
-            if (part.text) {
-              newPart.text = part.text;
-            }
-            if (part.functionCall) {
-              newPart.functionCall = part.functionCall;
-            }
-            if (part.executableCode) {
-              newPart.executableCode = part.executableCode;
-            }
-            if (part.codeExecutionResult) {
-              newPart.codeExecutionResult = part.codeExecutionResult;
-            }
-            if (Object.keys(newPart).length === 0) {
-              newPart.text = "";
-            }
-            aggregatedResponse.candidates[candidateIndex].content.parts.push(newPart);
-          }
-        }
-      }
-      candidateIndex++;
-    }
-    if (response.usageMetadata) {
-      aggregatedResponse.usageMetadata = response.usageMetadata;
-    }
-  }
-  return aggregatedResponse;
-}
-__name(aggregateResponses, "aggregateResponses");
-async function generateContentStream(apiKey, model, params, requestOptions) {
-  const response = await makeModelRequest(
-    model,
-    Task.STREAM_GENERATE_CONTENT,
-    apiKey,
-    /* stream */
-    true,
-    JSON.stringify(params),
-    requestOptions
-  );
-  return processStream(response);
-}
-__name(generateContentStream, "generateContentStream");
-async function generateContent(apiKey, model, params, requestOptions) {
-  const response = await makeModelRequest(
-    model,
-    Task.GENERATE_CONTENT,
-    apiKey,
-    /* stream */
-    false,
-    JSON.stringify(params),
-    requestOptions
-  );
-  const responseJson = await response.json();
-  const enhancedResponse = addHelpers(responseJson);
-  return {
-    response: enhancedResponse
-  };
-}
-__name(generateContent, "generateContent");
-function formatSystemInstruction(input) {
-  if (input == null) {
-    return void 0;
-  } else if (typeof input === "string") {
-    return { role: "system", parts: [{ text: input }] };
-  } else if (input.text) {
-    return { role: "system", parts: [input] };
-  } else if (input.parts) {
-    if (!input.role) {
-      return { role: "system", parts: input.parts };
-    } else {
-      return input;
-    }
-  }
-}
-__name(formatSystemInstruction, "formatSystemInstruction");
-function formatNewContent(request) {
-  let newParts = [];
-  if (typeof request === "string") {
-    newParts = [{ text: request }];
-  } else {
-    for (const partOrString of request) {
-      if (typeof partOrString === "string") {
-        newParts.push({ text: partOrString });
-      } else {
-        newParts.push(partOrString);
-      }
-    }
-  }
-  return assignRoleToPartsAndValidateSendMessageRequest(newParts);
-}
-__name(formatNewContent, "formatNewContent");
-function assignRoleToPartsAndValidateSendMessageRequest(parts) {
-  const userContent = { role: "user", parts: [] };
-  const functionContent = { role: "function", parts: [] };
-  let hasUserContent = false;
-  let hasFunctionContent = false;
-  for (const part of parts) {
-    if ("functionResponse" in part) {
-      functionContent.parts.push(part);
-      hasFunctionContent = true;
-    } else {
-      userContent.parts.push(part);
-      hasUserContent = true;
-    }
-  }
-  if (hasUserContent && hasFunctionContent) {
-    throw new GoogleGenerativeAIError("Within a single message, FunctionResponse cannot be mixed with other type of part in the request for sending chat message.");
-  }
-  if (!hasUserContent && !hasFunctionContent) {
-    throw new GoogleGenerativeAIError("No content is provided for sending chat message.");
-  }
-  if (hasUserContent) {
-    return userContent;
-  }
-  return functionContent;
-}
-__name(assignRoleToPartsAndValidateSendMessageRequest, "assignRoleToPartsAndValidateSendMessageRequest");
-function formatCountTokensInput(params, modelParams) {
-  var _a;
-  let formattedGenerateContentRequest = {
-    model: modelParams === null || modelParams === void 0 ? void 0 : modelParams.model,
-    generationConfig: modelParams === null || modelParams === void 0 ? void 0 : modelParams.generationConfig,
-    safetySettings: modelParams === null || modelParams === void 0 ? void 0 : modelParams.safetySettings,
-    tools: modelParams === null || modelParams === void 0 ? void 0 : modelParams.tools,
-    toolConfig: modelParams === null || modelParams === void 0 ? void 0 : modelParams.toolConfig,
-    systemInstruction: modelParams === null || modelParams === void 0 ? void 0 : modelParams.systemInstruction,
-    cachedContent: (_a = modelParams === null || modelParams === void 0 ? void 0 : modelParams.cachedContent) === null || _a === void 0 ? void 0 : _a.name,
-    contents: []
-  };
-  const containsGenerateContentRequest = params.generateContentRequest != null;
-  if (params.contents) {
-    if (containsGenerateContentRequest) {
-      throw new GoogleGenerativeAIRequestInputError("CountTokensRequest must have one of contents or generateContentRequest, not both.");
-    }
-    formattedGenerateContentRequest.contents = params.contents;
-  } else if (containsGenerateContentRequest) {
-    formattedGenerateContentRequest = Object.assign(Object.assign({}, formattedGenerateContentRequest), params.generateContentRequest);
-  } else {
-    const content = formatNewContent(params);
-    formattedGenerateContentRequest.contents = [content];
-  }
-  return { generateContentRequest: formattedGenerateContentRequest };
-}
-__name(formatCountTokensInput, "formatCountTokensInput");
-function formatGenerateContentInput(params) {
-  let formattedRequest;
-  if (params.contents) {
-    formattedRequest = params;
-  } else {
-    const content = formatNewContent(params);
-    formattedRequest = { contents: [content] };
-  }
-  if (params.systemInstruction) {
-    formattedRequest.systemInstruction = formatSystemInstruction(params.systemInstruction);
-  }
-  return formattedRequest;
-}
-__name(formatGenerateContentInput, "formatGenerateContentInput");
-function formatEmbedContentInput(params) {
-  if (typeof params === "string" || Array.isArray(params)) {
-    const content = formatNewContent(params);
-    return { content };
-  }
-  return params;
-}
-__name(formatEmbedContentInput, "formatEmbedContentInput");
-var VALID_PART_FIELDS = [
-  "text",
-  "inlineData",
-  "functionCall",
-  "functionResponse",
-  "executableCode",
-  "codeExecutionResult"
-];
-var VALID_PARTS_PER_ROLE = {
-  user: ["text", "inlineData"],
-  function: ["functionResponse"],
-  model: ["text", "functionCall", "executableCode", "codeExecutionResult"],
-  // System instructions shouldn't be in history anyway.
-  system: ["text"]
-};
-function validateChatHistory(history) {
-  let prevContent = false;
-  for (const currContent of history) {
-    const { role, parts } = currContent;
-    if (!prevContent && role !== "user") {
-      throw new GoogleGenerativeAIError(`First content should be with role 'user', got ${role}`);
-    }
-    if (!POSSIBLE_ROLES.includes(role)) {
-      throw new GoogleGenerativeAIError(`Each item should include role field. Got ${role} but valid roles are: ${JSON.stringify(POSSIBLE_ROLES)}`);
-    }
-    if (!Array.isArray(parts)) {
-      throw new GoogleGenerativeAIError("Content should have 'parts' property with an array of Parts");
-    }
-    if (parts.length === 0) {
-      throw new GoogleGenerativeAIError("Each Content should have at least one part");
-    }
-    const countFields = {
-      text: 0,
-      inlineData: 0,
-      functionCall: 0,
-      functionResponse: 0,
-      fileData: 0,
-      executableCode: 0,
-      codeExecutionResult: 0
-    };
-    for (const part of parts) {
-      for (const key of VALID_PART_FIELDS) {
-        if (key in part) {
-          countFields[key] += 1;
-        }
-      }
-    }
-    const validParts = VALID_PARTS_PER_ROLE[role];
-    for (const key of VALID_PART_FIELDS) {
-      if (!validParts.includes(key) && countFields[key] > 0) {
-        throw new GoogleGenerativeAIError(`Content with role '${role}' can't contain '${key}' part`);
-      }
-    }
-    prevContent = true;
-  }
-}
-__name(validateChatHistory, "validateChatHistory");
-function isValidResponse(response) {
-  var _a;
-  if (response.candidates === void 0 || response.candidates.length === 0) {
-    return false;
-  }
-  const content = (_a = response.candidates[0]) === null || _a === void 0 ? void 0 : _a.content;
-  if (content === void 0) {
-    return false;
-  }
-  if (content.parts === void 0 || content.parts.length === 0) {
-    return false;
-  }
-  for (const part of content.parts) {
-    if (part === void 0 || Object.keys(part).length === 0) {
-      return false;
-    }
-    if (part.text !== void 0 && part.text === "") {
-      return false;
-    }
-  }
-  return true;
-}
-__name(isValidResponse, "isValidResponse");
-var SILENT_ERROR = "SILENT_ERROR";
-var ChatSession = class {
-  static {
-    __name(this, "ChatSession");
-  }
-  constructor(apiKey, model, params, _requestOptions = {}) {
-    this.model = model;
-    this.params = params;
-    this._requestOptions = _requestOptions;
-    this._history = [];
-    this._sendPromise = Promise.resolve();
-    this._apiKey = apiKey;
-    if (params === null || params === void 0 ? void 0 : params.history) {
-      validateChatHistory(params.history);
-      this._history = params.history;
-    }
-  }
-  /**
-   * Gets the chat history so far. Blocked prompts are not added to history.
-   * Blocked candidates are not added to history, nor are the prompts that
-   * generated them.
-   */
-  async getHistory() {
-    await this._sendPromise;
-    return this._history;
-  }
-  /**
-   * Sends a chat message and receives a non-streaming
-   * {@link GenerateContentResult}.
-   *
-   * Fields set in the optional {@link SingleRequestOptions} parameter will
-   * take precedence over the {@link RequestOptions} values provided to
-   * {@link GoogleGenerativeAI.getGenerativeModel }.
-   */
-  async sendMessage(request, requestOptions = {}) {
-    var _a, _b, _c, _d, _e, _f;
-    await this._sendPromise;
-    const newContent = formatNewContent(request);
-    const generateContentRequest = {
-      safetySettings: (_a = this.params) === null || _a === void 0 ? void 0 : _a.safetySettings,
-      generationConfig: (_b = this.params) === null || _b === void 0 ? void 0 : _b.generationConfig,
-      tools: (_c = this.params) === null || _c === void 0 ? void 0 : _c.tools,
-      toolConfig: (_d = this.params) === null || _d === void 0 ? void 0 : _d.toolConfig,
-      systemInstruction: (_e = this.params) === null || _e === void 0 ? void 0 : _e.systemInstruction,
-      cachedContent: (_f = this.params) === null || _f === void 0 ? void 0 : _f.cachedContent,
-      contents: [...this._history, newContent]
-    };
-    const chatSessionRequestOptions = Object.assign(Object.assign({}, this._requestOptions), requestOptions);
-    let finalResult;
-    this._sendPromise = this._sendPromise.then(() => generateContent(this._apiKey, this.model, generateContentRequest, chatSessionRequestOptions)).then((result) => {
-      var _a2;
-      if (isValidResponse(result.response)) {
-        this._history.push(newContent);
-        const responseContent = Object.assign({
-          parts: [],
-          // Response seems to come back without a role set.
-          role: "model"
-        }, (_a2 = result.response.candidates) === null || _a2 === void 0 ? void 0 : _a2[0].content);
-        this._history.push(responseContent);
-      } else {
-        const blockErrorMessage = formatBlockErrorMessage(result.response);
-        if (blockErrorMessage) {
-          console.warn(`sendMessage() was unsuccessful. ${blockErrorMessage}. Inspect response object for details.`);
-        }
-      }
-      finalResult = result;
-    }).catch((e) => {
-      this._sendPromise = Promise.resolve();
-      throw e;
-    });
-    await this._sendPromise;
-    return finalResult;
-  }
-  /**
-   * Sends a chat message and receives the response as a
-   * {@link GenerateContentStreamResult} containing an iterable stream
-   * and a response promise.
-   *
-   * Fields set in the optional {@link SingleRequestOptions} parameter will
-   * take precedence over the {@link RequestOptions} values provided to
-   * {@link GoogleGenerativeAI.getGenerativeModel }.
-   */
-  async sendMessageStream(request, requestOptions = {}) {
-    var _a, _b, _c, _d, _e, _f;
-    await this._sendPromise;
-    const newContent = formatNewContent(request);
-    const generateContentRequest = {
-      safetySettings: (_a = this.params) === null || _a === void 0 ? void 0 : _a.safetySettings,
-      generationConfig: (_b = this.params) === null || _b === void 0 ? void 0 : _b.generationConfig,
-      tools: (_c = this.params) === null || _c === void 0 ? void 0 : _c.tools,
-      toolConfig: (_d = this.params) === null || _d === void 0 ? void 0 : _d.toolConfig,
-      systemInstruction: (_e = this.params) === null || _e === void 0 ? void 0 : _e.systemInstruction,
-      cachedContent: (_f = this.params) === null || _f === void 0 ? void 0 : _f.cachedContent,
-      contents: [...this._history, newContent]
-    };
-    const chatSessionRequestOptions = Object.assign(Object.assign({}, this._requestOptions), requestOptions);
-    const streamPromise = generateContentStream(this._apiKey, this.model, generateContentRequest, chatSessionRequestOptions);
-    this._sendPromise = this._sendPromise.then(() => streamPromise).catch((_ignored) => {
-      throw new Error(SILENT_ERROR);
-    }).then((streamResult) => streamResult.response).then((response) => {
-      if (isValidResponse(response)) {
-        this._history.push(newContent);
-        const responseContent = Object.assign({}, response.candidates[0].content);
-        if (!responseContent.role) {
-          responseContent.role = "model";
-        }
-        this._history.push(responseContent);
-      } else {
-        const blockErrorMessage = formatBlockErrorMessage(response);
-        if (blockErrorMessage) {
-          console.warn(`sendMessageStream() was unsuccessful. ${blockErrorMessage}. Inspect response object for details.`);
-        }
-      }
-    }).catch((e) => {
-      if (e.message !== SILENT_ERROR) {
-        console.error(e);
-      }
-    });
-    return streamPromise;
-  }
-};
-async function countTokens(apiKey, model, params, singleRequestOptions) {
-  const response = await makeModelRequest(model, Task.COUNT_TOKENS, apiKey, false, JSON.stringify(params), singleRequestOptions);
-  return response.json();
-}
-__name(countTokens, "countTokens");
-async function embedContent(apiKey, model, params, requestOptions) {
-  const response = await makeModelRequest(model, Task.EMBED_CONTENT, apiKey, false, JSON.stringify(params), requestOptions);
-  return response.json();
-}
-__name(embedContent, "embedContent");
-async function batchEmbedContents(apiKey, model, params, requestOptions) {
-  const requestsWithModel = params.requests.map((request) => {
-    return Object.assign(Object.assign({}, request), { model });
-  });
-  const response = await makeModelRequest(model, Task.BATCH_EMBED_CONTENTS, apiKey, false, JSON.stringify({ requests: requestsWithModel }), requestOptions);
-  return response.json();
-}
-__name(batchEmbedContents, "batchEmbedContents");
-var GenerativeModel = class {
-  static {
-    __name(this, "GenerativeModel");
-  }
-  constructor(apiKey, modelParams, _requestOptions = {}) {
-    this.apiKey = apiKey;
-    this._requestOptions = _requestOptions;
-    if (modelParams.model.includes("/")) {
-      this.model = modelParams.model;
-    } else {
-      this.model = `models/${modelParams.model}`;
-    }
-    this.generationConfig = modelParams.generationConfig || {};
-    this.safetySettings = modelParams.safetySettings || [];
-    this.tools = modelParams.tools;
-    this.toolConfig = modelParams.toolConfig;
-    this.systemInstruction = formatSystemInstruction(modelParams.systemInstruction);
-    this.cachedContent = modelParams.cachedContent;
-  }
-  /**
-   * Makes a single non-streaming call to the model
-   * and returns an object containing a single {@link GenerateContentResponse}.
-   *
-   * Fields set in the optional {@link SingleRequestOptions} parameter will
-   * take precedence over the {@link RequestOptions} values provided to
-   * {@link GoogleGenerativeAI.getGenerativeModel }.
-   */
-  async generateContent(request, requestOptions = {}) {
-    var _a;
-    const formattedParams = formatGenerateContentInput(request);
-    const generativeModelRequestOptions = Object.assign(Object.assign({}, this._requestOptions), requestOptions);
-    return generateContent(this.apiKey, this.model, Object.assign({ generationConfig: this.generationConfig, safetySettings: this.safetySettings, tools: this.tools, toolConfig: this.toolConfig, systemInstruction: this.systemInstruction, cachedContent: (_a = this.cachedContent) === null || _a === void 0 ? void 0 : _a.name }, formattedParams), generativeModelRequestOptions);
-  }
-  /**
-   * Makes a single streaming call to the model and returns an object
-   * containing an iterable stream that iterates over all chunks in the
-   * streaming response as well as a promise that returns the final
-   * aggregated response.
-   *
-   * Fields set in the optional {@link SingleRequestOptions} parameter will
-   * take precedence over the {@link RequestOptions} values provided to
-   * {@link GoogleGenerativeAI.getGenerativeModel }.
-   */
-  async generateContentStream(request, requestOptions = {}) {
-    var _a;
-    const formattedParams = formatGenerateContentInput(request);
-    const generativeModelRequestOptions = Object.assign(Object.assign({}, this._requestOptions), requestOptions);
-    return generateContentStream(this.apiKey, this.model, Object.assign({ generationConfig: this.generationConfig, safetySettings: this.safetySettings, tools: this.tools, toolConfig: this.toolConfig, systemInstruction: this.systemInstruction, cachedContent: (_a = this.cachedContent) === null || _a === void 0 ? void 0 : _a.name }, formattedParams), generativeModelRequestOptions);
-  }
-  /**
-   * Gets a new {@link ChatSession} instance which can be used for
-   * multi-turn chats.
-   */
-  startChat(startChatParams) {
-    var _a;
-    return new ChatSession(this.apiKey, this.model, Object.assign({ generationConfig: this.generationConfig, safetySettings: this.safetySettings, tools: this.tools, toolConfig: this.toolConfig, systemInstruction: this.systemInstruction, cachedContent: (_a = this.cachedContent) === null || _a === void 0 ? void 0 : _a.name }, startChatParams), this._requestOptions);
-  }
-  /**
-   * Counts the tokens in the provided request.
-   *
-   * Fields set in the optional {@link SingleRequestOptions} parameter will
-   * take precedence over the {@link RequestOptions} values provided to
-   * {@link GoogleGenerativeAI.getGenerativeModel }.
-   */
-  async countTokens(request, requestOptions = {}) {
-    const formattedParams = formatCountTokensInput(request, {
-      model: this.model,
-      generationConfig: this.generationConfig,
-      safetySettings: this.safetySettings,
-      tools: this.tools,
-      toolConfig: this.toolConfig,
-      systemInstruction: this.systemInstruction,
-      cachedContent: this.cachedContent
-    });
-    const generativeModelRequestOptions = Object.assign(Object.assign({}, this._requestOptions), requestOptions);
-    return countTokens(this.apiKey, this.model, formattedParams, generativeModelRequestOptions);
-  }
-  /**
-   * Embeds the provided content.
-   *
-   * Fields set in the optional {@link SingleRequestOptions} parameter will
-   * take precedence over the {@link RequestOptions} values provided to
-   * {@link GoogleGenerativeAI.getGenerativeModel }.
-   */
-  async embedContent(request, requestOptions = {}) {
-    const formattedParams = formatEmbedContentInput(request);
-    const generativeModelRequestOptions = Object.assign(Object.assign({}, this._requestOptions), requestOptions);
-    return embedContent(this.apiKey, this.model, formattedParams, generativeModelRequestOptions);
-  }
-  /**
-   * Embeds an array of {@link EmbedContentRequest}s.
-   *
-   * Fields set in the optional {@link SingleRequestOptions} parameter will
-   * take precedence over the {@link RequestOptions} values provided to
-   * {@link GoogleGenerativeAI.getGenerativeModel }.
-   */
-  async batchEmbedContents(batchEmbedContentRequest, requestOptions = {}) {
-    const generativeModelRequestOptions = Object.assign(Object.assign({}, this._requestOptions), requestOptions);
-    return batchEmbedContents(this.apiKey, this.model, batchEmbedContentRequest, generativeModelRequestOptions);
-  }
-};
-var GoogleGenerativeAI = class {
-  static {
-    __name(this, "GoogleGenerativeAI");
-  }
-  constructor(apiKey) {
-    this.apiKey = apiKey;
-  }
-  /**
-   * Gets a {@link GenerativeModel} instance for the provided model name.
-   */
-  getGenerativeModel(modelParams, requestOptions) {
-    if (!modelParams.model) {
-      throw new GoogleGenerativeAIError(`Must provide a model name. Example: genai.getGenerativeModel({ model: 'my-model-name' })`);
-    }
-    return new GenerativeModel(this.apiKey, modelParams, requestOptions);
-  }
-  /**
-   * Creates a {@link GenerativeModel} instance from provided content cache.
-   */
-  getGenerativeModelFromCachedContent(cachedContent, modelParams, requestOptions) {
-    if (!cachedContent.name) {
-      throw new GoogleGenerativeAIRequestInputError("Cached content must contain a `name` field.");
-    }
-    if (!cachedContent.model) {
-      throw new GoogleGenerativeAIRequestInputError("Cached content must contain a `model` field.");
-    }
-    const disallowedDuplicates = ["model", "systemInstruction"];
-    for (const key of disallowedDuplicates) {
-      if ((modelParams === null || modelParams === void 0 ? void 0 : modelParams[key]) && cachedContent[key] && (modelParams === null || modelParams === void 0 ? void 0 : modelParams[key]) !== cachedContent[key]) {
-        if (key === "model") {
-          const modelParamsComp = modelParams.model.startsWith("models/") ? modelParams.model.replace("models/", "") : modelParams.model;
-          const cachedContentComp = cachedContent.model.startsWith("models/") ? cachedContent.model.replace("models/", "") : cachedContent.model;
-          if (modelParamsComp === cachedContentComp) {
-            continue;
-          }
-        }
-        throw new GoogleGenerativeAIRequestInputError(`Different value for "${key}" specified in modelParams (${modelParams[key]}) and cachedContent (${cachedContent[key]})`);
-      }
-    }
-    const modelParamsFromCache = Object.assign(Object.assign({}, modelParams), { model: cachedContent.model, tools: cachedContent.tools, toolConfig: cachedContent.toolConfig, systemInstruction: cachedContent.systemInstruction, cachedContent });
-    return new GenerativeModel(this.apiKey, modelParamsFromCache, requestOptions);
-  }
-};
-
-// src/services/rag.ts
-var RAGService = class {
-  static {
-    __name(this, "RAGService");
-  }
-  genAI;
-  db;
-  constructor(apiKey, db) {
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.db = db;
-  }
-  async getRecentPatientRecords(userId, _daysBack = 7) {
-    const query = `
-      SELECT 
-        r.id,
-        r.condition,
-        r.form as freeText,
-        '\u30C7\u30FC\u30BF\u306A\u3057' as medicationStatus
-      FROM records r
-      WHERE r.user_id = ? 
-      ORDER BY r.id DESC
-      LIMIT 20
-    `;
-    const result = await this.db.prepare(query).bind(userId).all();
-    const records2 = result.results.map((record, index) => {
-      const daysAgo = Math.floor(index / 3);
-      const timeSlots = ["08:00", "12:00", "20:00"];
-      const timeSlot = timeSlots[index % 3];
-      const date = /* @__PURE__ */ new Date();
-      date.setDate(date.getDate() - daysAgo);
-      return {
-        date: date.toISOString().split("T")[0],
-        timeSlot,
-        condition: record.condition,
-        medicationStatus: record.medicationStatus,
-        freeText: record.freeText
-      };
-    });
-    return records2;
-  }
-  async getPeriodRecords(userId, startDate, _endDate) {
-    const query = `
-      SELECT 
-        r.id,
-        r.condition,
-        r.form as freeText,
-        '\u30C7\u30FC\u30BF\u306A\u3057' as medicationStatus
-      FROM records r
-      WHERE r.user_id = ? 
-      ORDER BY r.id ASC
-    `;
-    const result = await this.db.prepare(query).bind(userId).all();
-    const records2 = result.results.map((record, index) => {
-      const startDateObj = new Date(startDate);
-      const daysSinceStart = Math.floor(index / 3);
-      const timeSlots = ["08:00", "12:00", "20:00"];
-      const timeSlot = timeSlots[index % 3];
-      const recordDate = new Date(startDateObj);
-      recordDate.setDate(recordDate.getDate() + daysSinceStart);
-      return {
-        date: recordDate.toISOString().split("T")[0],
-        timeSlot,
-        condition: record.condition,
-        medicationStatus: record.medicationStatus,
-        freeText: record.freeText
-      };
-    });
-    return records2;
-  }
-  buildPatientFeedbackPrompt(context) {
-    const recentRecordsText = context.recentRecords.map((record) => `${record.date} (${record.timeSlot}): \u4F53\u8ABF${record.condition}, \u670D\u85AC${record.medicationStatus}${record.freeText ? `, \u300C${record.freeText}\u300D` : ""}`).join("\n");
-    const currentRecordText = `${context.currentRecord.date} (${context.currentRecord.timeSlot}): \u4F53\u8ABF${context.currentRecord.condition}, \u670D\u85AC${context.currentRecord.medicationStatus}${context.currentRecord.freeText ? `, \u300C${context.currentRecord.freeText}\u300D` : ""}`;
-    return `# \u6307\u793A
-\u3042\u306A\u305F\u306F\u512A\u3057\u3044\u30E1\u30F3\u30BF\u30EB\u30D8\u30EB\u30B9\u30B1\u30A2\u30B5\u30DD\u30FC\u30BF\u30FC\u3067\u3059\u3002\u4EE5\u4E0B\u306E\u30E6\u30FC\u30B6\u30FC\u306E\u904E\u53BB\u306E\u8A18\u9332\u3068\u4ECA\u65E5\u306E\u8A18\u9332\u3092\u53C2\u8003\u306B\u3057\u3066\u3001\u30E6\u30FC\u30B6\u30FC\u3092\u52B1\u307E\u3059\u6E29\u304B\u3044\u30E1\u30C3\u30BB\u30FC\u30B8\u3092\u751F\u6210\u3057\u3066\u304F\u3060\u3055\u3044\u3002
-
-# \u904E\u53BB\u306E\u8A18\u9332
-${recentRecordsText}
-
-# \u4ECA\u65E5\u306E\u8A18\u9332
-${currentRecordText}
-
-# \u751F\u6210\u3059\u308B\u30E1\u30C3\u30BB\u30FC\u30B8\u306E\u8981\u4EF6:
-- 50\u6587\u5B57\u4EE5\u5185\u3067\u7C21\u6F54\u306B
-- \u670D\u85AC\u9075\u5B88\u3092\u8912\u3081\u308B
-- \u4F53\u8ABF\u306E\u5909\u5316\u306B\u5171\u611F\u3059\u308B
-- \u81EA\u7531\u8A18\u8FF0\u304C\u3042\u308C\u3070\u5FDC\u7B54\u3059\u308B
-- \u6E29\u304B\u304F\u52B1\u307E\u3057\u306E\u8A00\u8449\u3092\u304B\u3051\u308B
-
-# \u751F\u6210\u3059\u308B\u30E1\u30C3\u30BB\u30FC\u30B8:`;
-  }
-  buildObjectiveSummaryPrompt(context) {
-    const recordsText = context.allRecords.map((record) => `${record.date} (${record.timeSlot}): \u4F53\u8ABF${record.condition}, \u670D\u85AC${record.medicationStatus}${record.freeText ? `, \u300C${record.freeText}\u300D` : ""}`).join("\n");
-    return `# \u6307\u793A
-\u4EE5\u4E0B\u306E\u6D3B\u52D5\u8A18\u9332\u3092\u3001\u65E5\u4ED8\u3084\u4F53\u8ABF\u306E\u5909\u5316\u304C\u308F\u304B\u308B\u3088\u3046\u306B\u5BA2\u89B3\u7684\u306B\u8981\u7D04\u3057\u3066\u304F\u3060\u3055\u3044\u3002
-
-# \u5BFE\u8C61\u671F\u9593
-${context.periodStart} \uFF5E ${context.periodEnd}
-
-# \u6D3B\u52D5\u8A18\u9332
-${recordsText}
-
-# \u8981\u7D04\u306E\u8981\u4EF6:
-- \u5BA2\u89B3\u7684\u4E8B\u5B9F\u306E\u307F\u3092\u8A18\u8F09
-- \u65E5\u4ED8\u9806\u306B\u6642\u7CFB\u5217\u3067\u6574\u7406
-- \u4F53\u8ABF\u306E\u5909\u5316\u30D1\u30BF\u30FC\u30F3\u3092\u660E\u8A18
-- \u670D\u85AC\u9075\u5B88\u7387\u306E\u50BE\u5411\u3092\u8A18\u8F09
-- \u63A8\u6E2C\u3084\u4E3B\u89B3\u7684\u5224\u65AD\u306F\u907F\u3051\u308B
-
-# \u5BA2\u89B3\u7684\u8981\u7D04:`;
-  }
-  buildMedicalSummaryPrompt(context) {
-    const recordsText = context.allRecords.map((record) => `${record.date} (${record.timeSlot}): \u4F53\u8ABF${record.condition}, \u670D\u85AC${record.medicationStatus}${record.freeText ? `, \u300C${record.freeText}\u300D` : ""}`).join("\n");
-    return `# \u6307\u793A
-\u4EE5\u4E0B\u306E\u6D3B\u52D5\u8A18\u9332\u304B\u3089\u3001\u533B\u5E2B\u304C\u6B21\u306E\u8A3A\u5BDF\u3067\u7279\u306B\u6CE8\u76EE\u3059\u3079\u304D\u75C7\u72B6\u3001\u526F\u4F5C\u7528\u306E\u53EF\u80FD\u6027\u3001\u60A3\u8005\u304C\u62B1\u3048\u308B\u91CD\u8981\u306A\u60A9\u307F\u306A\u3069\u3092\u7B87\u6761\u66F8\u304D\u3067\u62BD\u51FA\u3057\u3066\u304F\u3060\u3055\u3044\u3002
-
-# \u5BFE\u8C61\u671F\u9593
-${context.periodStart} \uFF5E ${context.periodEnd}
-
-# \u6D3B\u52D5\u8A18\u9332
-${recordsText}
-
-# \u62BD\u51FA\u306E\u8981\u4EF6:
-- \u533B\u5E2B\u304C\u77ED\u6642\u9593\u3067\u628A\u63E1\u3059\u3079\u304D\u91CD\u8981\u4E8B\u9805\u306E\u307F
-- \u7B87\u6761\u66F8\u304D\u3067\u7C21\u6F54\u306B
-- \u75C7\u72B6\u306E\u60AA\u5316\u50BE\u5411\u304C\u3042\u308C\u3070\u5FC5\u305A\u8A18\u8F09
-- \u670D\u85AC\u306B\u95A2\u3059\u308B\u554F\u984C\u304C\u3042\u308C\u3070\u8A18\u8F09
-- \u60A3\u8005\u306E\u91CD\u8981\u306A\u8A34\u3048\u304C\u3042\u308C\u3070\u8A18\u8F09
-- \u4E8B\u5B9F\u3068\u63A8\u6E2C\u3092\u660E\u78BA\u306B\u533A\u5225
-
-# \u533B\u5E2B\u5411\u3051\u91CD\u8981\u4E8B\u9805:`;
-  }
-  async generatePatientFeedback(context) {
-    const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const prompt = this.buildPatientFeedbackPrompt(context);
-    try {
-      const result = await model.generateContent(prompt);
-      const response = result.response;
-      return response.text().trim();
-    } catch (error) {
-      console.error("Error generating patient feedback:", error);
-      return "\u304A\u75B2\u308C\u69D8\u3067\u3059\u3002\u8A18\u9332\u3092\u3064\u3051\u3066\u3044\u305F\u3060\u304D\u3001\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002";
-    }
-  }
-  async generateMedicalReport(context) {
-    const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    try {
-      const [objectiveResult, medicalResult] = await Promise.all([
-        model.generateContent(this.buildObjectiveSummaryPrompt(context)),
-        model.generateContent(this.buildMedicalSummaryPrompt(context))
-      ]);
-      const objectiveSummary = objectiveResult.response.text().trim();
-      const medicalSummary = medicalResult.response.text().trim();
-      return {
-        objectiveSummary,
-        medicalSummary
-      };
-    } catch (error) {
-      console.error("Error generating medical report:", error);
-      return {
-        objectiveSummary: "\u8A18\u9332\u306E\u8981\u7D04\u751F\u6210\u4E2D\u306B\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F\u3002",
-        medicalSummary: "\u533B\u5E2B\u5411\u3051\u30B5\u30DE\u30EA\u30FC\u751F\u6210\u4E2D\u306B\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F\u3002"
-      };
-    }
-  }
-};
-
 // src/routes/records.ts
 var records = new Hono2();
 records.get("/", async (c) => {
@@ -3268,48 +1993,19 @@ records.get("/user/:userId", async (c) => {
 });
 records.post("/", async (c) => {
   try {
-    const requestBody = await c.req.json();
-    console.log("Received request body:", requestBody);
-    const { user_id, condition, form, occurred_at } = requestBody;
+    const { user_id, condition, form, medication_instance_id } = await c.req.json();
     const validConditions = ["\u3007", "\u25B3", "\xD7"];
-    console.log("Validation check:", { user_id, condition, validConditions, isValid: validConditions.includes(condition) });
     if (!user_id || !condition || !validConditions.includes(condition)) {
-      console.log("Validation failed:", { user_id, condition, form });
       return c.json({ error: `user_id and valid condition (${validConditions.join(", ")}) are required` }, 400);
     }
-    const timestamp = occurred_at || (/* @__PURE__ */ new Date()).toISOString();
-    const recordResult = await c.env.DB.prepare(`
-      INSERT INTO records (user_id, condition, form) 
-      VALUES (?, ?, ?)
-    `).bind(user_id, condition, form).run();
-    if (!recordResult.success) {
+    const { success } = await c.env.DB.prepare(`
+      INSERT INTO records (user_id, condition, form, medication_instance_id) 
+      VALUES (?, ?, ?, ?)
+    `).bind(user_id, condition, form, medication_instance_id).run();
+    if (success) {
+      return c.json({ message: "Record created successfully" }, 201);
+    } else {
       return c.json({ error: "Failed to create record" }, 500);
-    }
-    try {
-      const ragService = new RAGService(c.env.GEMINI_API_KEY, c.env.DB);
-      const recentRecords = await ragService.getRecentPatientRecords(user_id, 7);
-      const currentRecord = {
-        date: timestamp.split("T")[0],
-        timeSlot: new Date(timestamp).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" }),
-        condition,
-        medicationStatus: "\u30C7\u30FC\u30BF\u306A\u3057",
-        freeText: form
-      };
-      const feedback = await ragService.generatePatientFeedback({
-        userId: user_id,
-        recentRecords,
-        currentRecord
-      });
-      return c.json({
-        message: "Record created successfully",
-        feedback
-      }, 201);
-    } catch (ragError) {
-      console.error("RAG feedback generation failed:", ragError);
-      return c.json({
-        message: "Record created successfully",
-        feedback: "\u304A\u75B2\u308C\u69D8\u3067\u3059\u3002\u8A18\u9332\u3092\u3064\u3051\u3066\u3044\u305F\u3060\u304D\u3001\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002"
-      }, 201);
     }
   } catch (error) {
     return c.json({ error: "Failed to create record" }, 500);
@@ -3433,70 +2129,18 @@ dashboard.get("/analytics/:userId", async (c) => {
 });
 var dashboard_default = dashboard;
 
-// src/routes/reports.ts
-var reports = new Hono2();
-reports.post("/generate", async (c) => {
-  try {
-    const { user_id, start_date, end_date } = await c.req.json();
-    if (!user_id || !start_date || !end_date) {
-      return c.json({ error: "user_id, start_date, and end_date are required" }, 400);
-    }
-    const ragService = new RAGService(c.env.GEMINI_API_KEY, c.env.DB);
-    const periodRecords = await ragService.getPeriodRecords(user_id, start_date, end_date);
-    if (periodRecords.length === 0) {
-      return c.json({
-        error: "No records found for the specified period",
-        objectiveSummary: "\u6307\u5B9A\u671F\u9593\u5185\u306B\u8A18\u9332\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3067\u3057\u305F\u3002",
-        medicalSummary: "\u8A55\u4FA1\u53EF\u80FD\u306A\u30C7\u30FC\u30BF\u304C\u3042\u308A\u307E\u305B\u3093\u3002"
-      }, 404);
-    }
-    const reportContext = {
-      userId: user_id,
-      periodStart: start_date,
-      periodEnd: end_date,
-      allRecords: periodRecords
-    };
-    const { objectiveSummary, medicalSummary } = await ragService.generateMedicalReport(reportContext);
-    return c.json({
-      userId: user_id,
-      periodStart: start_date,
-      periodEnd: end_date,
-      recordCount: periodRecords.length,
-      objectiveSummary,
-      medicalSummary,
-      generatedAt: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  } catch (error) {
-    console.error("Error generating medical report:", error);
-    return c.json({ error: "Failed to generate medical report" }, 500);
-  }
-});
-reports.get("/preview/:userId/:startDate/:endDate", async (c) => {
-  try {
-    const userId = c.req.param("userId");
-    const startDate = c.req.param("startDate");
-    const endDate = c.req.param("endDate");
-    const ragService = new RAGService(c.env.GEMINI_API_KEY, c.env.DB);
-    const periodRecords = await ragService.getPeriodRecords(parseInt(userId), startDate, endDate);
-    return c.json({
-      userId,
-      periodStart: startDate,
-      periodEnd: endDate,
-      recordCount: periodRecords.length,
-      records: periodRecords
-    });
-  } catch (error) {
-    console.error("Error getting report preview:", error);
-    return c.json({ error: "Failed to get report preview" }, 500);
-  }
-});
-var reports_default = reports;
+// src/routes/index.ts
+var routes = new Hono2();
+routes.route("/accounts", accounts_default);
+routes.route("/users", users_default);
+routes.route("/medications", medications_default);
+routes.route("/medication-instances", medication_instances_default);
+routes.route("/records", records_default);
+routes.route("/dashboard", dashboard_default);
+var routes_default = routes;
 
-// src/routes/broadcast.ts
-var app = new Hono2();
-var PUSH_URL = "https://api.line.me/v2/bot/message/push";
-var PUSH_MOCK_URL = "https://api.example.com/v2/bot/message/push";
-var IS_MOCK = false;
+// src/routes/webhook.ts
+var IS_MOCK = true;
 if (typeof globalThis.fetch === "function" && IS_MOCK) {
   console.log("\u30ED\u30FC\u30AB\u30EB\u958B\u767A\u74B0\u5883\u306E\u305F\u3081\u3001fetch\u3092\u30E2\u30C3\u30AF\u5316\u3057\u307E\u3059\u3002");
   globalThis.fetch = async (url, init) => {
@@ -3520,179 +2164,8 @@ if (typeof globalThis.fetch === "function" && IS_MOCK) {
     throw new Error(`fetch: \u5916\u90E8API\u3078\u306E\u30A2\u30AF\u30BB\u30B9\u3092\u7981\u6B62\u3057\u3066\u3044\u307E\u3059\u3002URL: ${url}`);
   };
 }
-var getPushUrl = /* @__PURE__ */ __name(() => IS_MOCK ? PUSH_MOCK_URL : PUSH_URL, "getPushUrl");
-var sendNotificationToAllUsers = /* @__PURE__ */ __name(async (env, message) => {
-  const accessToken = env.LINE_CHANNEL_ACCESS_TOKEN;
-  const db = env.DB;
-  try {
-    const usersResult = await db.prepare(`
-			SELECT u.name, a.line_id as line_user_id
-			FROM users u
-			JOIN accounts a ON u.account_id = a.id
-			WHERE a.line_id IS NOT NULL
-		`).all();
-    if (usersResult.results && usersResult.results.length > 0) {
-      console.log(`${usersResult.results.length}\u4EBA\u306E\u30E6\u30FC\u30B6\u30FC\u306B\u4E00\u6589\u901A\u77E5\u3092\u9001\u4FE1\u3057\u307E\u3059`);
-      const results = await Promise.allSettled(
-        usersResult.results.map(async (user) => {
-          try {
-            await fetch(getPushUrl(), {
-              body: JSON.stringify({
-                to: user.line_user_id,
-                messages: [{
-                  "type": "text",
-                  "text": message
-                }]
-              }),
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json"
-              }
-            });
-            return { success: true, user: user.name, line_user_id: user.line_user_id };
-          } catch (error) {
-            console.error(`\u30E1\u30C3\u30BB\u30FC\u30B8\u9001\u4FE1\u30A8\u30E9\u30FC (${user.line_user_id}):`, error);
-            return { success: false, user: user.name, line_user_id: user.line_user_id, error };
-          }
-        })
-      );
-      const successCount = results.filter((result) => result.status === "fulfilled" && result.value.success).length;
-      const failureCount = results.length - successCount;
-      console.log(`\u4E00\u6589\u901A\u77E5\u5B8C\u4E86: \u6210\u529F ${successCount}\u4EF6, \u5931\u6557 ${failureCount}\u4EF6`);
-      return {
-        total: results.length,
-        success: successCount,
-        failure: failureCount,
-        results: results.map(
-          (result) => result.status === "fulfilled" ? result.value : { success: false, error: result.reason }
-        )
-      };
-    } else {
-      console.log("\u901A\u77E5\u5BFE\u8C61\u306E\u30E6\u30FC\u30B6\u30FC\u304C\u3044\u307E\u305B\u3093");
-      return { total: 0, success: 0, failure: 0, results: [] };
-    }
-  } catch (error) {
-    console.error("\u4E00\u6589\u901A\u77E5\u30A8\u30E9\u30FC:", error);
-    throw error;
-  }
-}, "sendNotificationToAllUsers");
-app.get("/test", (c) => {
-  return c.json({ message: "broadcast route is working" });
-});
-app.post("/", async (c) => {
-  try {
-    const body = await c.req.json();
-    const { message } = body;
-    if (!message || typeof message !== "string") {
-      return c.json({
-        success: false,
-        error: "\u30E1\u30C3\u30BB\u30FC\u30B8\u304C\u6B63\u3057\u304F\u6307\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093"
-      }, 400);
-    }
-    const result = await sendNotificationToAllUsers(c.env, message);
-    return c.json({
-      success: true,
-      message: "\u4E00\u6589\u901A\u77E5\u304C\u5B8C\u4E86\u3057\u307E\u3057\u305F",
-      data: result
-    });
-  } catch (error) {
-    console.error("\u4E00\u6589\u901A\u77E5\u30A8\u30F3\u30C9\u30DD\u30A4\u30F3\u30C8\u30A8\u30E9\u30FC:", error);
-    return c.json({
-      success: false,
-      error: "\u4E00\u6589\u901A\u77E5\u306E\u5B9F\u884C\u4E2D\u306B\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F"
-    }, 500);
-  }
-});
-var broadcast_default = app;
-
-// src/routes/index.ts
-var routes = new Hono2();
-routes.get("/", (c) => {
-  return c.json({ message: "API is working", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
-});
-routes.route("/accounts", accounts_default);
-routes.route("/users", users_default);
-routes.route("/medications", medications_default);
-routes.route("/medication-instances", medication_instances_default);
-routes.route("/users", user_medications_default);
-routes.route("/records", records_default);
-routes.route("/dashboard", dashboard_default);
-routes.route("/reports", reports_default);
-routes.route("/broadcast", broadcast_default);
-var routes_default = routes;
-
-// src/routes/webhook.ts
-var REPLY_URL = "https://api.line.me/v2/bot/message/reply";
-var PUSH_URL2 = "https://api.line.me/v2/bot/message/push";
-var REPLY_MOCK_URL = "https://api.example.com/v2/bot/message/reply";
-var PUSH_MOCK_URL2 = "https://api.example.com/v2/bot/message/push";
-var IS_MOCK2 = false;
-var getReplyUrl = /* @__PURE__ */ __name(() => IS_MOCK2 ? REPLY_MOCK_URL : REPLY_URL, "getReplyUrl");
-var getPushUrl2 = /* @__PURE__ */ __name(() => IS_MOCK2 ? PUSH_MOCK_URL2 : PUSH_URL2, "getPushUrl");
-var validateNotificationTimes = /* @__PURE__ */ __name((timesText) => {
-  try {
-    if (!timesText || timesText.trim() === "") {
-      return { isValid: false, error: "\u6642\u523B\u304C\u5165\u529B\u3055\u308C\u3066\u3044\u307E\u305B\u3093" };
-    }
-    if (timesText.trim() === "\u306A\u3057") {
-      return { isValid: true, times: [] };
-    }
-    const times = timesText.split(",").map((t) => t.trim()).filter((t) => t !== "");
-    if (times.length === 0) {
-      return { isValid: false, error: "\u5C11\u306A\u304F\u3068\u30821\u3064\u306E\u6642\u523B\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044" };
-    }
-    const formattedTimes = [];
-    for (const time of times) {
-      const timeRegex = /^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
-      if (!timeRegex.test(time)) {
-        return { isValid: false, error: `\u6642\u523B\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093: ${time} (hh:mm\u5F62\u5F0F\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044)` };
-      }
-      const [hours, minutes] = time.split(":").map(Number);
-      if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-        return { isValid: false, error: `\u6642\u523B\u306E\u7BC4\u56F2\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093: ${time} (00:00-23:59\u306E\u7BC4\u56F2\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044)` };
-      }
-      const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-      formattedTimes.push(formattedTime);
-    }
-    const uniqueTimes = [...new Set(formattedTimes)];
-    if (uniqueTimes.length !== formattedTimes.length) {
-      return { isValid: false, error: "\u91CD\u8907\u3057\u305F\u6642\u523B\u304C\u542B\u307E\u308C\u3066\u3044\u307E\u3059" };
-    }
-    const sortedTimes = [...formattedTimes].sort();
-    if (JSON.stringify(sortedTimes) !== JSON.stringify(formattedTimes)) {
-      return { isValid: false, error: "\u6642\u523B\u306F\u6607\u9806\uFF08\u65E9\u3044\u6642\u523B\u304B\u3089\uFF09\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044" };
-    }
-    return { isValid: true, times: formattedTimes };
-  } catch (error) {
-    return { isValid: false, error: "\u6642\u523B\u306E\u691C\u8A3C\u4E2D\u306B\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F" };
-  }
-}, "validateNotificationTimes");
-if (typeof globalThis.fetch === "function" && IS_MOCK2) {
-  console.log("\u30ED\u30FC\u30AB\u30EB\u958B\u767A\u74B0\u5883\u306E\u305F\u3081\u3001fetch\u3092\u30E2\u30C3\u30AF\u5316\u3057\u307E\u3059\u3002");
-  globalThis.fetch = async (url, init) => {
-    const request = new Request(url, init);
-    const clonedRequest = request.clone();
-    try {
-      const body = await clonedRequest.json();
-      console.log("--- [\u30E2\u30C3\u30AF\u3055\u308C\u305Ffetch\u306E\u30EA\u30AF\u30A8\u30B9\u30C8body] ---");
-      console.log(JSON.stringify(body));
-      console.log("--- [\u30E2\u30C3\u30AF\u3055\u308C\u305Ffetch\u306E\u30EA\u30AF\u30A8\u30B9\u30C8body] ---");
-    } catch (e) {
-      console.log("\u30EA\u30AF\u30A8\u30B9\u30C8body\u306FJSON\u5F62\u5F0F\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3067\u3057\u305F\u3002");
-    }
-    if (true) {
-      console.log(`\u30E2\u30C3\u30AF\u3055\u308C\u305Ffetch\u304C\u547C\u3073\u51FA\u3055\u308C\u307E\u3057\u305F: ${url}`);
-      return new Response(JSON.stringify({ weather: "\u6674\u308C" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    throw new Error(`fetch: \u5916\u90E8API\u3078\u306E\u30A2\u30AF\u30BB\u30B9\u3092\u7981\u6B62\u3057\u3066\u3044\u307E\u3059\u3002URL: ${url}`);
-  };
-}
-var app2 = new Hono2();
-app2.post("/webhook", async (c) => {
+var app = new Hono2();
+app.post("/webhook", async (c) => {
   const data = await c.req.json();
   const events = data.events;
   const accessToken = c.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -3769,51 +2242,6 @@ var register_user = /* @__PURE__ */ __name(async (db, userInfo) => {
       }
       return false;
     }
-    if (userInfo.notification_times.trim() === "\u306A\u3057") {
-      const reminderResult = await db.prepare(`
-				INSERT INTO record_reminder_rules (user_id, alert_time, enabled)
-				VALUES (?, ?, 0)
-			`).bind(
-        userResult.meta.last_row_id,
-        ""
-        // 空文字
-      ).run();
-      if (!reminderResult.success) {
-        console.error("\u901A\u77E5\u6642\u523B\u306E\u767B\u9332\u306B\u5931\u6557\u3057\u307E\u3057\u305F\uFF08\u306A\u3057\u306E\u5834\u5408\uFF09");
-        try {
-          await db.prepare("DELETE FROM users WHERE id = ?").bind(userResult.meta.last_row_id).run();
-          await db.prepare("DELETE FROM accounts WHERE id = ?").bind(accountResult.meta.last_row_id).run();
-        } catch (deleteError) {
-          console.error("\u524A\u9664\u30A8\u30E9\u30FC:", deleteError);
-        }
-        return false;
-      }
-    } else {
-      const timeValidation = validateNotificationTimes(userInfo.notification_times);
-      if (!timeValidation.isValid || !timeValidation.times) {
-        console.error("\u6642\u523B\u306E\u30D0\u30EA\u30C7\u30FC\u30B7\u30E7\u30F3\u306B\u5931\u6557\u3057\u307E\u3057\u305F");
-        return false;
-      }
-      for (const time of timeValidation.times) {
-        const reminderResult = await db.prepare(`
-					INSERT INTO record_reminder_rules (user_id, alert_time, enabled)
-					VALUES (?, ?, 1)
-				`).bind(
-          userResult.meta.last_row_id,
-          time
-        ).run();
-        if (!reminderResult.success) {
-          console.error(`\u901A\u77E5\u6642\u523B\u306E\u767B\u9332\u306B\u5931\u6557\u3057\u307E\u3057\u305F: ${time}`);
-          try {
-            await db.prepare("DELETE FROM users WHERE id = ?").bind(userResult.meta.last_row_id).run();
-            await db.prepare("DELETE FROM accounts WHERE id = ?").bind(accountResult.meta.last_row_id).run();
-          } catch (deleteError) {
-            console.error("\u524A\u9664\u30A8\u30E9\u30FC:", deleteError);
-          }
-          return false;
-        }
-      }
-    }
     return true;
   } catch (error) {
     console.error("\u30E6\u30FC\u30B6\u30FC\u767B\u9332\u30A8\u30E9\u30FC:", error);
@@ -3836,7 +2264,7 @@ var textEventHandler = /* @__PURE__ */ __name(async (event, accessToken, db) => 
         text: `${userInfo.name}\u3055\u3093\u3001\u4F53\u8ABF\u8A18\u9332\u306F\u4EE5\u4E0B\u306EURL\u304B\u3089\u304A\u9858\u3044\u3057\u307E\u3059\uFF1A
 https://example.com/diagnosis`
       };
-      await fetch(getReplyUrl(), {
+      await fetch("https://api.example.com/v2/bot/message/reply", {
         body: JSON.stringify({
           replyToken,
           messages: [response]
@@ -3850,40 +2278,14 @@ https://example.com/diagnosis`
     }
   } else {
     const lines = text.split("\n");
-    if (lines.length >= 4) {
-      const [name, email, password, notificationTimes] = lines;
-      const timeValidation = validateNotificationTimes(notificationTimes);
-      if (!timeValidation.isValid) {
-        const response = {
-          type: "text",
-          text: `\u6642\u523B\u306E\u5165\u529B\u306B\u554F\u984C\u304C\u3042\u308A\u307E\u3059\uFF1A${timeValidation.error}
-
-\u6B63\u3057\u3044\u5F62\u5F0F\uFF1A
-\u540D\u524D\uFF08\u6F22\u5B57\uFF09
-\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9
-\u30D1\u30B9\u30EF\u30FC\u30C9
-\u901A\u77E5\u6642\u523B\uFF08hh:mm\u5F62\u5F0F\u3001\u30AB\u30F3\u30DE\u533A\u5207\u308A\u3001\u4F8B\uFF1A08:00,12:00,20:00 \u307E\u305F\u306F \u306A\u3057\uFF09`
-        };
-        await fetch(getReplyUrl(), {
-          body: JSON.stringify({
-            replyToken,
-            messages: [response]
-          }),
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          }
-        });
-        return;
-      }
+    if (lines.length >= 3) {
+      const [name, email, password] = lines;
       if (name && email && password && email.includes("@")) {
         const userInfo = {
           line_user_id: userid,
           name: name.trim(),
           email: email.trim(),
-          password: password.trim(),
-          notification_times: notificationTimes.trim()
+          password: password.trim()
         };
         console.log(userInfo);
         const registered = await register_user(db, userInfo);
@@ -3892,7 +2294,7 @@ https://example.com/diagnosis`
             type: "text",
             text: `${name}\u3055\u3093\u3001\u767B\u9332\u304C\u5B8C\u4E86\u3057\u307E\u3057\u305F\uFF01\u3053\u308C\u304B\u3089\u4F53\u8ABF\u7BA1\u7406\u3092\u30B5\u30DD\u30FC\u30C8\u3055\u305B\u3066\u3044\u305F\u3060\u304D\u307E\u3059\u3002`
           };
-          await fetch(getReplyUrl(), {
+          await fetch("https://api.example.com/v2/bot/message/reply", {
             body: JSON.stringify({
               replyToken,
               messages: [response]
@@ -3908,7 +2310,7 @@ https://example.com/diagnosis`
             type: "text",
             text: "\u767B\u9332\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002\u3082\u3046\u4E00\u5EA6\u304A\u8A66\u3057\u304F\u3060\u3055\u3044\u3002"
           };
-          await fetch(getReplyUrl(), {
+          await fetch("https://api.example.com/v2/bot/message/reply", {
             body: JSON.stringify({
               replyToken,
               messages: [response]
@@ -3923,9 +2325,9 @@ https://example.com/diagnosis`
       } else {
         const response = {
           type: "text",
-          text: "\u6B63\u3057\u3044\u5F62\u5F0F\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A\n\u540D\u524D\uFF08\u6F22\u5B57\uFF09\n\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\n\u30D1\u30B9\u30EF\u30FC\u30C9\n\u901A\u77E5\u6642\u523B\uFF08hh:mm\u5F62\u5F0F\u3001\u30AB\u30F3\u30DE\u533A\u5207\u308A\u3001\u4F8B\uFF1A08:00,12:00,20:00 \u307E\u305F\u306F \u306A\u3057\uFF09"
+          text: "\u6B63\u3057\u3044\u5F62\u5F0F\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A\n\u540D\u524D\uFF08\u6F22\u5B57\uFF09\n\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\n\u30D1\u30B9\u30EF\u30FC\u30C9"
         };
-        await fetch(getReplyUrl(), {
+        await fetch("https://api.example.com/v2/bot/message/reply", {
           body: JSON.stringify({
             replyToken,
             messages: [response]
@@ -3940,9 +2342,9 @@ https://example.com/diagnosis`
     } else {
       const response = {
         type: "text",
-        text: "\u4EE5\u4E0B\u306E\u5F62\u5F0F\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A\n\u540D\u524D\uFF08\u6F22\u5B57\uFF09\n\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\n\u30D1\u30B9\u30EF\u30FC\u30C9\n\u901A\u77E5\u6642\u523B\uFF08hh:mm\u5F62\u5F0F\u3001\u30AB\u30F3\u30DE\u533A\u5207\u308A\u3001\u4F8B\uFF1A08:00,12:00,20:00 \u307E\u305F\u306F \u306A\u3057\uFF09"
+        text: "\u4EE5\u4E0B\u306E\u5F62\u5F0F\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A\n\u540D\u524D\uFF08\u6F22\u5B57\uFF09\n\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\n\u30D1\u30B9\u30EF\u30FC\u30C9"
       };
-      await fetch(getReplyUrl(), {
+      await fetch("https://api.example.com/v2/bot/message/reply", {
         body: JSON.stringify({
           replyToken,
           messages: [response]
@@ -3964,12 +2366,12 @@ var followEventHandler = /* @__PURE__ */ __name(async (event, accessToken) => {
   const userid = event.source.userId;
   const timestamp = new Date(event.timestamp);
   console.log("follow " + userid + timestamp.toISOString());
-  const text = "\u53CB\u3060\u3061\u8FFD\u52A0\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002\u9023\u643A\u306E\u305F\u3081\u3001\u4EE5\u4E0B\u306E\u5F62\u5F0F\u306B\u5F93\u3063\u3066\u60C5\u5831\u3092\u9001\u4FE1\u3057\u3066\u304F\u3060\u3055\u3044\u3002\n\u540D\u524D\uFF08\u6F22\u5B57\uFF09\n\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\n\u30D1\u30B9\u30EF\u30FC\u30C9\n\u901A\u77E5\u6642\u523B\uFF08hh:mm\u5F62\u5F0F\u3001\u30AB\u30F3\u30DE\u533A\u5207\u308A\u3001\u4F8B\uFF1A08:00,12:00,20:00 \u307E\u305F\u306F \u306A\u3057\uFF09";
+  const text = "\u53CB\u3060\u3061\u8FFD\u52A0\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u3002\u9023\u643A\u306E\u305F\u3081\u3001\u4EE5\u4E0B\u306E\u5F62\u5F0F\u306B\u5F93\u3063\u3066\u60C5\u5831\u3092\u9001\u4FE1\u3057\u3066\u304F\u3060\u3055\u3044\u3002\n\u540D\u524D\uFF08\u6F22\u5B57\uFF09\n\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\n\u30D1\u30B9\u30EF\u30FC\u30C9";
   const response = {
     type: "text",
     text
   };
-  await fetch(getReplyUrl(), {
+  await fetch("https://api.example.com/v2/bot/message/reply", {
     body: JSON.stringify({
       replyToken,
       messages: [response]
@@ -3983,72 +2385,64 @@ var followEventHandler = /* @__PURE__ */ __name(async (event, accessToken) => {
 }, "followEventHandler");
 var scheduled = /* @__PURE__ */ __name(async (controller, env, _ctx) => {
   const accessToken = env.LINE_CHANNEL_ACCESS_TOKEN;
-  const db = env.DB;
   const utc = new Date(controller.scheduledTime);
-  const currentTime = `${utc.getHours().toString().padStart(2, "0")}:${utc.getMinutes().toString().padStart(2, "0")}`;
+  console.log("cron " + utc.toISOString());
   try {
-    const usersResult = await db.prepare(`
-			SELECT u.name, a.line_id as line_user_id, rrr.alert_time, rrr.enabled
-			FROM users u
-			JOIN accounts a ON u.account_id = a.id
-			LEFT JOIN record_reminder_rules rrr ON u.id = rrr.user_id
-			WHERE a.line_id IS NOT NULL
-		`).all();
-    if (usersResult.results && usersResult.results.length > 0) {
-      const usersToNotify = usersResult.results.filter((user) => {
-        return user.alert_time === currentTime && user.enabled === 1;
-      });
-      if (usersToNotify.length > 0) {
-        await Promise.all(
-          usersToNotify.map(async (user) => {
-            try {
-              await fetch(getPushUrl2(), {
-                body: JSON.stringify({
-                  to: user.line_user_id,
-                  messages: [{
-                    "type": "text",
-                    "text": `${user.name}\u3055\u3093\u3001\u3053\u3093\u3070\u3093\u306F\u3002\u4ECA\u65E5\u306E\u4F53\u8ABF\u8A18\u9332\u3092\u304A\u9858\u3044\u3057\u307E\u3059\u3002\u4EE5\u4E0B\u306EURL\u304B\u3089\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A
+    const users2 = { results: [] };
+    if (users2.results && users2.results.length > 0) {
+      await Promise.all(
+        users2.results.map(async (user) => {
+          try {
+            await fetch("https://api.example.com/v2/bot/message/push", {
+              body: JSON.stringify({
+                to: user.line_user_id,
+                messages: [{
+                  "type": "text",
+                  "text": `${user.name}\u3055\u3093\u3001\u3053\u3093\u3070\u3093\u306F\u3002\u4ECA\u65E5\u306E\u4F53\u8ABF\u8A18\u9332\u3092\u304A\u9858\u3044\u3057\u307E\u3059\u3002\u4EE5\u4E0B\u306EURL\u304B\u3089\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\uFF1A
 https://example.com/diagnosis`
-                  }]
-                }),
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  "Content-Type": "application/json"
-                }
-              });
-            } catch (error) {
-              console.error(`\u30E1\u30C3\u30BB\u30FC\u30B8\u9001\u4FE1\u30A8\u30E9\u30FC (${user.line_user_id}):`, error);
-            }
-          })
-        );
-      }
+                }]
+              }),
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+              }
+            });
+            console.log(`\u4F53\u8ABF\u78BA\u8A8D\u30E1\u30C3\u30BB\u30FC\u30B8\u3092\u9001\u4FE1: ${user.name} (${user.line_user_id})`);
+          } catch (error) {
+            console.error(`\u30E1\u30C3\u30BB\u30FC\u30B8\u9001\u4FE1\u30A8\u30E9\u30FC (${user.line_user_id}):`, error);
+          }
+        })
+      );
+      console.log(`${users2.results.length}\u4EBA\u306E\u30E6\u30FC\u30B6\u30FC\u306B\u4F53\u8ABF\u78BA\u8A8D\u30E1\u30C3\u30BB\u30FC\u30B8\u3092\u9001\u4FE1\u3057\u307E\u3057\u305F`);
+    } else {
+      console.log("\u767B\u9332\u6E08\u307F\u30E6\u30FC\u30B6\u30FC\u304C\u3044\u307E\u305B\u3093");
     }
   } catch (error) {
     console.error("\u30B9\u30B1\u30B8\u30E5\u30FC\u30EB\u30BF\u30B9\u30AF\u30A8\u30E9\u30FC:", error);
   }
 }, "scheduled");
 var webhook_default = {
-  fetch: app2.fetch,
+  fetch: app.fetch,
   scheduled
 };
 
 // src/index.ts
-var app3 = new Hono2();
-app3.use("*", cors());
-app3.get("/", (c) => {
+var app2 = new Hono2();
+app2.use("*", cors());
+app2.get("/", (c) => {
   return c.text("After Care API Server");
 });
-app3.route("/api", routes_default);
-app3.post("/webhook", async (c) => {
+app2.route("/api", routes_default);
+app2.post("/webhook", async (c) => {
   return webhook_default.fetch(c.req.raw, c.env, c.executionCtx);
 });
 var src_default = {
-  fetch: app3.fetch,
+  fetch: app2.fetch,
   scheduled: webhook_default.scheduled
 };
 
-// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+// ../../../../../opt/homebrew/lib/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
 var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
@@ -4066,7 +2460,23 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
 
-// node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+// ../../../../../opt/homebrew/lib/node_modules/wrangler/templates/middleware/middleware-scheduled.ts
+var scheduled2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  const url = new URL(request.url);
+  if (url.pathname === "/__scheduled") {
+    const cron = url.searchParams.get("cron") ?? "";
+    await middlewareCtx.dispatch("scheduled", { cron });
+    return new Response("Ran scheduled event");
+  }
+  const resp = await middlewareCtx.next(request, env);
+  if (request.headers.get("referer")?.endsWith("/__scheduled") && url.pathname === "/favicon.ico" && resp.status === 500) {
+    return new Response(null, { status: 404 });
+  }
+  return resp;
+}, "scheduled");
+var middleware_scheduled_default = scheduled2;
+
+// ../../../../../opt/homebrew/lib/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
 function reduceError(e) {
   return {
     name: e?.name,
@@ -4089,14 +2499,15 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-97J8g4/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-ojpwYN/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
+  middleware_scheduled_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = src_default;
 
-// node_modules/wrangler/templates/middleware/common.ts
+// ../../../../../opt/homebrew/lib/node_modules/wrangler/templates/middleware/common.ts
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
@@ -4121,7 +2532,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-97J8g4/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-ojpwYN/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
@@ -4221,25 +2632,4 @@ export {
   __INTERNAL_WRANGLER_MIDDLEWARE__,
   middleware_loader_entry_default as default
 };
-/*! Bundled license information:
-
-@google/generative-ai/dist/index.mjs:
-@google/generative-ai/dist/index.mjs:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-*/
 //# sourceMappingURL=index.js.map

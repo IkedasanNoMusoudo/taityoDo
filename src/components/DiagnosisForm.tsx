@@ -1,26 +1,33 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DiagnosisData, MedicationLevel, HealthCondition, TimeSlot } from '../types'
+import { DiagnosisData, MedicationLevel, MedicationDetail, HealthCondition, TimeSlot } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { apiService } from '../services/api'
 
 const DiagnosisForm = () => {
   const navigate = useNavigate()
   const { user, isAuthenticated } = useAuth()
-  const [formData, setFormData] = useState<DiagnosisData>({
-    medicationLevel: {
-      '起きた時': null,
-      '朝': null,
-      '昼': null,
-      '夜': null,
-      '寝る前': null
-    },
+
+  const initialMedicationLevel: Record<TimeSlot, MedicationDetail> = {
+    '起きた時': { name: '', amount: null, level: '飲んでない' },
+    '朝': { name: '', amount: null, level: '飲んでない' },
+    '昼': { name: '', amount: null, level: '飲んでない' },
+    '夜': { name: '', amount: null, level: '飲んでない' },
+    '寝る前': { name: '', amount: null, level: '飲んでない' }
+  }
+
+  //フォームリセットのためのデータ
+  const initialFormData: DiagnosisData = {
+    medicationLevel: initialMedicationLevel,
     healthCondition: null,
     consultation: '',
     timestamp: new Date().toISOString(),
-    tonyoUsed: false, // 初期値
+    tonyoUsed: false,
     skipMedication: false
-  })
+  }
+
+
+  const [formData, setFormData] = useState<DiagnosisData>(initialFormData)
 
   const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
   const medicationLevels: MedicationLevel[] = ['多く飲んだ', '飲んだ', '少なめに飲んだ', '飲んでない']
@@ -32,21 +39,6 @@ const DiagnosisForm = () => {
   const [submitError, setSubmitError] = useState<string>('')
 
 
-  //フォームリセットのためのデータ
-  const initialFormData: DiagnosisData = {
-    medicationLevel: {
-      '起きた時': null,
-      '朝': null,
-      '昼': null,
-      '夜': null,
-      '寝る前': null
-    },
-    healthCondition: null,
-    consultation: '',
-    timestamp: new Date().toISOString(),
-    tonyoUsed: false,
-    skipMedication: false
-  }
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,6 +86,8 @@ const DiagnosisForm = () => {
     }
   }
 
+  
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-8">
@@ -106,21 +100,18 @@ const DiagnosisForm = () => {
           <div className="mt-4">
             <label className="font-semibold text-gray-700">薬を使っていませんか？</label>
               <div className='mt-2'>
-                <label className="inline-flex items-center">
+                <label className="inline-flex items-center mt-2 mb-2">
                   <input
                     type="checkbox"
                     checked={formData.skipMedication}
                     onChange={(e) => {
                       const checked = e.target.checked
-                      const resetMedicationLevel = Object.fromEntries(
-                        timeSlots.map((slot) => [slot, null])
-                      ) as Record<TimeSlot, MedicationLevel | null>
 
                       setFormData((prev) => ({
                         ...prev,
                         skipMedication: checked,
                         tonyoUsed: checked ? false : prev.tonyoUsed,
-                        medicationLevel: checked ? resetMedicationLevel : prev.medicationLevel
+                        medicationLevel: initialMedicationLevel,
                       }))
                     }}
                     className="form-checkbox h-5 w-5 text-blue-600"
@@ -157,7 +148,7 @@ const DiagnosisForm = () => {
                     <label
                       key={level}
                       className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        formData.medicationLevel[slot] === level
+                        formData.medicationLevel[slot].level === level
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
@@ -166,22 +157,72 @@ const DiagnosisForm = () => {
                         type="radio"
                         name={`${slot}`}
                         value={level}
-                        checked={formData.medicationLevel[slot] === level}
+                        checked={formData.medicationLevel[slot].level === level}
                         onChange={() =>
                           setFormData((prev) => ({
                             ...prev,
                             medicationLevel: {
                               ...prev.medicationLevel,
-                              [slot]: level
+                              [slot]: {
+                                ...prev.medicationLevel[slot],
+                                level: level
+                              }
                             }
                           }))
                         }
+
                         className="sr-only"
                       />
                       <span className="block text-center">{level}</span>
                     </label>
                   ))}
                 </div>
+
+                {formData.medicationLevel[slot] !== null && (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="薬の名前"
+                      value={formData.medicationLevel[slot]?.name ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              name: e.target.value,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="服用錠数"
+                      value={formData.medicationLevel[slot]?.amount ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              amount: parseInt(e.target.value) || null,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                      min={0}
+                    />
+                  </>
+                )}
+
+
+
               </fieldset>
             ))}
           </div>
@@ -254,7 +295,7 @@ const DiagnosisForm = () => {
                       <label
                         key={level}
                         className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                          formData.medicationLevel[slot] === level
+                          formData.medicationLevel[slot].level === level
                             ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
@@ -263,13 +304,16 @@ const DiagnosisForm = () => {
                           type="radio"
                           name={`${slot}`}
                           value={level}
-                          checked={formData.medicationLevel[slot] === level}
+                          checked={formData.medicationLevel[slot].level === level}
                           onChange={() =>
                             setFormData((prev) => ({
                               ...prev,
                               medicationLevel: {
                                 ...prev.medicationLevel,
-                                [slot]: level
+                                [slot]: {
+                                  ...prev.medicationLevel[slot],
+                                  level: level
+                                }
                               }
                             }))
                           }
@@ -279,6 +323,50 @@ const DiagnosisForm = () => {
                       </label>
                     ))}
                   </div>
+
+                  {formData.medicationLevel[slot] !== null && (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="薬の名前"
+                      value={formData.medicationLevel[slot]?.name ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              name: e.target.value,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="服用錠数"
+                      value={formData.medicationLevel[slot]?.amount ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              amount: parseInt(e.target.value) || null,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                      min={0}
+                    />
+                  </>
+                )}
+
                 </fieldset>
               ))}
             </div>
@@ -300,21 +388,14 @@ const DiagnosisForm = () => {
             />
           </div>
 
-          {/* エラー表示 */}
-          {submitError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {submitError}
-            </div>
-          )}
-
-          {!isAuthenticated && (
-            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-              ログインしてRAG機能をお使いください
-            </div>
-          )}
-
           {/* 送信ボタン */}
           <div className="pt-4">
+            {submitError && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600">{submitError}</p>
+              </div>
+            )}
+            
             <button
               type="submit"
               disabled={
@@ -328,43 +409,35 @@ const DiagnosisForm = () => {
             </button>
           </div>
           
-          {/* RAGフィードバック付きモーダル（送信後） */}
+          {/* モーダル（送信後） */}
           {isModalOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-              <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full text-center mx-4">
+              <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full text-center">
                 <h2 className="text-2xl font-bold text-green-700 mb-4">お疲れさまでした！</h2>
                 
                 {/* RAGフィードバック表示 */}
-                {ragFeedback && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-2">💬 AIからのメッセージ</h3>
-                    <p className="text-blue-700 whitespace-pre-line leading-relaxed">
-                      {ragFeedback}
-                    </p>
-                  </div>
-                )}
+                <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
+                  <h3 className="font-semibold text-blue-700 mb-2">💬 AIからのメッセージ</h3>
+                  <p className="text-gray-800 leading-relaxed">
+                    {ragFeedback || '記録は保存されました。励ましメッセージを取得できませんでしたが、頑張っていますね！'}
+                  </p>
+                </div>
                 
                 <p className="text-gray-700 mb-6">今日もよく記録できました 😊</p>
                 
-                <div className="flex gap-3 justify-center">
+                <div className="flex gap-3">
                   <button
-                    onClick={() => {
-                      setIsModalOpen(false)
-                      setRagFeedback('')
-                      setSubmitError('')
-                    }}
-                    className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
                   >
                     続けて記録
                   </button>
                   <button
                     onClick={() => {
                       setIsModalOpen(false)
-                      setRagFeedback('')
-                      setSubmitError('')
-                      navigate('/report')
+                      navigate('/report') // モーダル閉じた後にreportに遷移
                     }}
-                    className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                    className="flex-1 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
                   >
                     レポートを見る
                   </button>

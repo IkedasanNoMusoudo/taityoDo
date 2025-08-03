@@ -12,16 +12,24 @@ export const medicationLevel: Record<MedicationLevel, number> = {
   '飲んでない': 0,
 }
 
+export type MedicationDetail = {
+  name: string
+  amount: number | null
+  level: MedicationLevel
+}
+
 export type HealthCondition = '○' | '×' | '△'
 
 export interface DiagnosisData {
-  medicationLevel: Record<TimeSlot, MedicationLevel | null>
+  medicationLevel: Record<TimeSlot, MedicationDetail>
   healthCondition: HealthCondition | null
   consultation: string
   timestamp: string
   tonyoUsed: boolean
   skipMedication: boolean 
 }
+
+
 
 export interface ReportData extends DiagnosisData {
   id: string
