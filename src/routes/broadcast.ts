@@ -3,7 +3,6 @@ import { Hono } from 'hono'
 type Env = {
   DB: any
   LINE_CHANNEL_ACCESS_TOKEN: string
-  USER_ID_MOCK: string
 }
 
 const app = new Hono<{ Bindings: Env }>()
@@ -11,7 +10,7 @@ const app = new Hono<{ Bindings: Env }>()
 // LINE API URL設定
 const PUSH_URL = 'https://api.line.me/v2/bot/message/push'
 const PUSH_MOCK_URL = 'https://api.example.com/v2/bot/message/push'
-const IS_MOCK = true
+const IS_MOCK = false
 
 if (typeof globalThis.fetch === 'function' && IS_MOCK) {
     console.log('ローカル開発環境のため、fetchをモック化します。');
@@ -52,11 +51,12 @@ const sendNotificationToAllUsers = async (env: Env, message: string) => {
 	const db = env.DB;
 	
 	try {
-		// 全ユーザーの名前、line_user_idをDBから取得
+		// 全ユーザーの名前、line_user_idをDBから取得（line_idがnullでないもののみ）
 		const usersResult = await db.prepare(`
 			SELECT u.name, a.line_id as line_user_id
 			FROM users u
 			JOIN accounts a ON u.account_id = a.id
+			WHERE a.line_id IS NOT NULL
 		`).all();
 		
 		if (usersResult.results && usersResult.results.length > 0) {

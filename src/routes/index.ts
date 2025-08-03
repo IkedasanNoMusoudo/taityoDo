@@ -11,7 +11,6 @@ import broadcast from './broadcast'
 type Env = {
   DB: any // D1Database type - using any for now to avoid type issues
   LINE_CHANNEL_ACCESS_TOKEN: string
-  USER_ID_MOCK: string
 }
 
 const routes = new Hono<{ Bindings: Env }>()

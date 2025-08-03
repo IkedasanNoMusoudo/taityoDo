@@ -6,9 +6,8 @@ import {
 } from "@line/bot-sdk";
 
 type Env = {
-  DB: any // D1Database type - using any for now to avoid type issues
-  LINE_CHANNEL_ACCESS_TOKEN: string;
-  USER_ID_MOCK: string;
+	DB: any // D1Database type - using any for now to avoid type issues
+	LINE_CHANNEL_ACCESS_TOKEN: string;
 }
 
 // ユーザー情報の型定義
@@ -25,7 +24,7 @@ const REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
 const PUSH_URL = 'https://api.line.me/v2/bot/message/push'
 const REPLY_MOCK_URL = 'https://api.example.com/v2/bot/message/reply'
 const PUSH_MOCK_URL = 'https://api.example.com/v2/bot/message/push'
-const IS_MOCK = true
+const IS_MOCK = false
 
 // IS_MOCKフラグに基づいてURLを選択
 const getReplyUrl = () => IS_MOCK ? REPLY_MOCK_URL : REPLY_URL
@@ -469,12 +468,13 @@ const scheduled = async (
 	const currentTime = `${utc.getHours().toString().padStart(2, '0')}:${utc.getMinutes().toString().padStart(2, '0')}`;
 	
 	try {
-		// 全ユーザーの名前、line_user_id、通知時刻をDBから取得（通知設定なしも含む）
+		// 全ユーザーの名前、line_user_id、通知時刻をDBから取得（line_idがnullでないもののみ）
 		const usersResult = await db.prepare(`
 			SELECT u.name, a.line_id as line_user_id, rrr.alert_time, rrr.enabled
 			FROM users u
 			JOIN accounts a ON u.account_id = a.id
 			LEFT JOIN record_reminder_rules rrr ON u.id = rrr.user_id
+			WHERE a.line_id IS NOT NULL
 		`).all();
 		
 		if (usersResult.results && usersResult.results.length > 0) {
