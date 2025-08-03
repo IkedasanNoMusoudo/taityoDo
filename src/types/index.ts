@@ -29,6 +29,8 @@ export interface DiagnosisData {
   skipMedication: boolean 
 }
 
+
+
 export interface ReportData extends DiagnosisData {
   id: string
   aiRecommendation?: string
