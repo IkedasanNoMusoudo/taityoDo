@@ -13,8 +13,8 @@ function App() {
       <Routes>
         <Route path="/" element={<DiagnosisForm />} />
         <Route path="/report" element={<ReportView />} />
-        <Route path='login' element={<LoginPage/>} />
-        <Route path='register' element={<RegisterPage />} />
+        <Route path='/login' element={<LoginPage/>} />
+        <Route path='/register' element={<RegisterPage />} />
       </Routes>
     </Layout>
   )

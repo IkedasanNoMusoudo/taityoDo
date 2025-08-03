@@ -1,23 +1,30 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DiagnosisData, MedicationLevel, HealthCondition, TimeSlot } from '../types'
+import { DiagnosisData, MedicationLevel, MedicationDetail ,HealthCondition, TimeSlot } from '../types'
 
 const DiagnosisForm = () => {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState<DiagnosisData>({
-    medicationLevel: {
-      '起きた時': null,
-      '朝': null,
-      '昼': null,
-      '夜': null,
-      '寝る前': null
-    },
+
+  const initialMedicationLevel: Record<TimeSlot, MedicationDetail> = {
+    '起きた時': { name: '', amount: null, level: '飲んでない' },
+    '朝': { name: '', amount: null, level: '飲んでない' },
+    '昼': { name: '', amount: null, level: '飲んでない' },
+    '夜': { name: '', amount: null, level: '飲んでない' },
+    '寝る前': { name: '', amount: null, level: '飲んでない' }
+  }
+
+  //フォームリセットのためのデータ
+  const initialFormData: DiagnosisData = {
+    medicationLevel: initialMedicationLevel,
     healthCondition: null,
     consultation: '',
     timestamp: new Date().toISOString(),
-    tonyoUsed: false, // 初期値
+    tonyoUsed: false,
     skipMedication: false
-  })
+  }
+
+
+  const [formData, setFormData] = useState<DiagnosisData>(initialFormData)
 
   const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
   const medicationLevels: MedicationLevel[] = ['多く飲んだ', '飲んだ', '少なめに飲んだ', '飲んでない']
@@ -26,21 +33,6 @@ const DiagnosisForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
 
-  //フォームリセットのためのデータ
-  const initialFormData: DiagnosisData = {
-    medicationLevel: {
-      '起きた時': null,
-      '朝': null,
-      '昼': null,
-      '夜': null,
-      '寝る前': null
-    },
-    healthCondition: null,
-    consultation: '',
-    timestamp: '',
-    tonyoUsed: false,
-    skipMedication: false
-  }
 
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,21 +68,18 @@ const DiagnosisForm = () => {
           <div className="mt-4">
             <label className="font-semibold text-gray-700">薬を使っていませんか？</label>
               <div className='mt-2'>
-                <label className="inline-flex items-center">
+                <label className="inline-flex items-center mt-2 mb-2">
                   <input
                     type="checkbox"
                     checked={formData.skipMedication}
                     onChange={(e) => {
                       const checked = e.target.checked
-                      const resetMedicationLevel = Object.fromEntries(
-                        timeSlots.map((slot) => [slot, null])
-                      ) as Record<TimeSlot, MedicationLevel | null>
 
                       setFormData((prev) => ({
                         ...prev,
                         skipMedication: checked,
                         tonyoUsed: checked ? false : prev.tonyoUsed,
-                        medicationLevel: checked ? resetMedicationLevel : prev.medicationLevel
+                        medicationLevel: initialMedicationLevel,
                       }))
                     }}
                     className="form-checkbox h-5 w-5 text-blue-600"
@@ -127,7 +116,7 @@ const DiagnosisForm = () => {
                     <label
                       key={level}
                       className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        formData.medicationLevel[slot] === level
+                        formData.medicationLevel[slot].level === level
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
@@ -136,22 +125,72 @@ const DiagnosisForm = () => {
                         type="radio"
                         name={`${slot}`}
                         value={level}
-                        checked={formData.medicationLevel[slot] === level}
+                        checked={formData.medicationLevel[slot].level === level}
                         onChange={() =>
                           setFormData((prev) => ({
                             ...prev,
                             medicationLevel: {
                               ...prev.medicationLevel,
-                              [slot]: level
+                              [slot]: {
+                                ...prev.medicationLevel[slot],
+                                level: level
+                              }
                             }
                           }))
                         }
+
                         className="sr-only"
                       />
                       <span className="block text-center">{level}</span>
                     </label>
                   ))}
                 </div>
+
+                {formData.medicationLevel[slot] !== null && (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="薬の名前"
+                      value={formData.medicationLevel[slot]?.name ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              name: e.target.value,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="服用錠数"
+                      value={formData.medicationLevel[slot]?.amount ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              amount: parseInt(e.target.value) || null,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                      min={0}
+                    />
+                  </>
+                )}
+
+
+
               </fieldset>
             ))}
           </div>
@@ -224,7 +263,7 @@ const DiagnosisForm = () => {
                       <label
                         key={level}
                         className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                          formData.medicationLevel[slot] === level
+                          formData.medicationLevel[slot].level === level
                             ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
@@ -233,13 +272,16 @@ const DiagnosisForm = () => {
                           type="radio"
                           name={`${slot}`}
                           value={level}
-                          checked={formData.medicationLevel[slot] === level}
+                          checked={formData.medicationLevel[slot].level === level}
                           onChange={() =>
                             setFormData((prev) => ({
                               ...prev,
                               medicationLevel: {
                                 ...prev.medicationLevel,
-                                [slot]: level
+                                [slot]: {
+                                  ...prev.medicationLevel[slot],
+                                  level: level
+                                }
                               }
                             }))
                           }
@@ -249,6 +291,50 @@ const DiagnosisForm = () => {
                       </label>
                     ))}
                   </div>
+
+                  {formData.medicationLevel[slot] !== null && (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="薬の名前"
+                      value={formData.medicationLevel[slot]?.name ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              name: e.target.value,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="服用錠数"
+                      value={formData.medicationLevel[slot]?.amount ?? ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          medicationLevel: {
+                            ...prev.medicationLevel,
+                            [slot]: {
+                              ...(prev.medicationLevel[slot] ?? { name: '', amount: null }),
+                              amount: parseInt(e.target.value) || null,
+                            }
+                          }
+                        }))
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                      min={0}
+                    />
+                  </>
+                )}
+
                 </fieldset>
               ))}
             </div>

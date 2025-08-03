@@ -6,6 +6,9 @@ import { generatePDF } from '../utils/pdfGenerator'
 const ReportView = () => {
   const [reports, setReports] = useState<ReportData[]>([])
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null)
+  
+
+
 
   // diagnosisDataというローカルストレージから取得
   useEffect(() => {
@@ -54,11 +57,12 @@ const ReportView = () => {
 
   const generateChartData = (data: ReportData[]) => {
     const timeSlots: TimeSlot[] = ['起きた時', '朝', '昼', '夜', '寝る前']
+
     return timeSlots.map((slot) => ({
       name: slot,
       value: data.filter(report => report.tonyoUsed).reduce(
         (sum, report) => {
-          const level = report.medicationLevel?.[slot] ?? '飲んでない'
+          const level = report.medicationLevel?.[slot]?.level ?? '飲んでない'
           return sum + medicationLevel(level)
         }, 0)
     }))
@@ -79,6 +83,8 @@ const ReportView = () => {
       </div>
     )
   }
+
+  
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -144,11 +150,15 @@ const ReportView = () => {
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-gray-700 mb-2">薬の投与量</h3>
-                  <p className="text-gray-800">{Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
-                    <p key={time}>
-                      {time}: {level ?? '未記録'}
-                    </p>
-                  ))}
+                  <p className="text-gray-800">
+                    {Object.entries(selectedReport.medicationLevel).map(([time, detail]) => {
+                      const slot = time as TimeSlot;
+                      return (
+                        <p key={slot}>
+                          {slot}: {detail.level} （{detail.name}  量: {detail.amount ?? '未記録'}）
+                        </p>
+                      );
+                    })}
                   </p>
                 </div>
 
@@ -177,11 +187,14 @@ const ReportView = () => {
             {selectedReport.tonyoUsed && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-gray-700 mb-2">薬の投与量（屯用薬）</h3>
-                {Object.entries(selectedReport.medicationLevel).map(([time, level]) => (
-                  <p className="text-gray-800" key={time}>
-                    {time}: {level ?? '未記録'}
-                  </p>
-                ))}
+                {Object.entries(selectedReport.medicationLevel).map(([time, detail]) => {
+                  const slot = time as TimeSlot;
+                  return (
+                    <p key={slot}>
+                      {slot}: {detail.level} （{detail.name}  量: {detail.amount ?? '未記録'}）
+                    </p>
+                  );
+                })}
               </div>
             )}
 
