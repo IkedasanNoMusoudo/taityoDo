@@ -63,35 +63,27 @@ records.get('/user/:userId', async (c) => {
 
 records.post('/', async (c) => {
   try {
-    const { user_id, condition, form, occurred_at } = await c.req.json()
+    const requestBody = await c.req.json()
+    console.log('Received request body:', requestBody)
+    
+    const { user_id, condition, form, occurred_at } = requestBody
     
     const validConditions = ['〇', '△', '×']
+    console.log('Validation check:', { user_id, condition, validConditions, isValid: validConditions.includes(condition) })
+    
     if (!user_id || !condition || !validConditions.includes(condition)) {
+      console.log('Validation failed:', { user_id, condition, form })
       return c.json({ error: `user_id and valid condition (${validConditions.join(', ')}) are required` }, 400)
     }
     
     const timestamp = occurred_at || new Date().toISOString()
     
-    // Create activity log first
-    const activityResult = await c.env.DB.prepare(`
-      INSERT INTO activity_logs (user_id, occurred_at) 
-      VALUES (?, ?)
-    `)
-      .bind(user_id, timestamp)
-      .run()
-    
-    if (!activityResult.success) {
-      return c.json({ error: 'Failed to create activity log' }, 500)
-    }
-    
-    const activityLogId = activityResult.meta.last_row_id
-    
-    // Create the record
+    // Create the record directly (using current table structure)
     const recordResult = await c.env.DB.prepare(`
-      INSERT INTO records (activity_log_id, condition, form) 
+      INSERT INTO records (user_id, condition, form) 
       VALUES (?, ?, ?)
     `)
-      .bind(activityLogId, condition, form)
+      .bind(user_id, condition, form)
       .run()
     
     if (!recordResult.success) {

@@ -16,6 +16,11 @@ type Env = {
 
 const routes = new Hono<{ Bindings: Env }>()
 
+// Test endpoint
+routes.get('/', (c) => {
+  return c.json({ message: 'API is working', timestamp: new Date().toISOString() })
+})
+
 // API routes
 routes.route('/accounts', accounts)
 routes.route('/users', users)
