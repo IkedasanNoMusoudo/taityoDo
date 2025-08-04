@@ -6,7 +6,7 @@ async function testRAGLocally() {
   console.log('🧪 Starting RAG local test...');
   
   const mockDB = createMockDB();
-  const ragService = new RAGService('AIzaSyDBlxBGfbq-1iDV7H0mh5-0rH5TTt1aj9M', mockDB);
+  const ragService = new RAGService(process.env.GEMINI_API_KEY!, mockDB);
   
   try {
     console.log('📝 Testing patient feedback generation...');
