@@ -1,7 +1,7 @@
 // Quick test to verify Google Gemini API connectivity
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const API_KEY = 'AIzaSyDBlxBGfbq-1iDV7H0mh5-0rH5TTt1aj9M';
+const API_KEY = process.env.GEMINI_API_KEY;
 
 async function testGeminiAPI() {
   console.log('🧪 Testing Google Gemini API...');

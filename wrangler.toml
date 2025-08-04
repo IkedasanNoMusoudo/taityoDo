@@ -4,7 +4,8 @@ main = "src/index.ts"
 compatibility_date = "2023-12-01"
 
 [vars]
-GEMINI_API_KEY = "YOUR-API-key"
+GEMINI_API_KEY = "YourAPIkey"
+
 
 [[d1_databases]]
 binding = "DB"
